@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Bankroll Tracker - Gestiona tus apuestas">
+    <meta name="theme-color" content="#1e293b">
+    <title>Bankroll Tracker</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --bg: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --border: #475569;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding-bottom: 80px;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: var(--bg-secondary);
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            padding: 1.25rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: bold;
+        }
+
+        .stat-value.positive {
+            color: var(--success);
+        }
+
+        .stat-value.negative {
+            color: var(--danger);
+        }
+
+        .form-section {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+        }
+
+        .form-section h2 {
+            margin-bottom: 1rem;
+            color: var(--primary);
+            font-size: 1.25rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .btn {
+            padding: 0.875rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .bet-list {
+            margin-top: 2rem;
+        }
+
+        .bet-item {
+            background: var(--bg-secondary);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--border);
+            position: relative;
+        }
+
+        .bet-item.win {
+            border-left-color: var(--success);
+        }
+
+        .bet-item.loss {
+            border-left-color: var(--danger);
+        }
+
+        .bet-item.pending {
+            border-left-color: var(--warning);
+        }
+
+        .bet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 0.5rem;
+        }
+
+        .bet-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .bet-amount {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .bet-details {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        .bet-status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        .bet-status.win {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .bet-status.loss {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .bet-status.pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .filters {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            color: var(--text);
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.3s;
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-secondary);
+        }
+
+        .chart-container {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+        }
+
+        .chart-container h2 {
+            margin-bottom: 1rem;
+            color: var(--primary);
+            font-size: 1.25rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--success);
+            transition: width 0.3s;
+        }
+
+        @media (max-width: 640px) {
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .stat-value {
+                font-size: 1.5rem;
+            }
+        }
+
+        .install-prompt {
+            background: var(--primary);
+            padding: 1rem;
+            margin: 1rem;
+            border-radius: 8px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .install-prompt.show {
+            display: flex;
+        }
+
+        .roi-indicator {
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>💰 Bankroll Tracker</h1>
+    </div>
+
+    <div class="install-prompt" id="installPrompt">
+        <span>📱 Instala la app en tu móvil</span>
+        <button class="btn btn-primary" id="installBtn" style="width: auto; padding: 0.5rem 1rem; margin: 0;">Instalar</button>
+    </div>
+
+    <div class="container">
+        <!-- Estadísticas -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Bankroll</div>
+                <div class="stat-value" id="bankrollValue">€0</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="bankrollProgress"></div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Beneficio/Pérdida</div>
+                <div class="stat-value" id="profitValue">€0</div>
+                <div class="roi-indicator" id="roiValue">ROI: 0%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Apuestas Totales</div>
+                <div class="stat-value" id="totalBets">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Win Rate</div>
+                <div class="stat-value" id="winRate">0%</div>
+            </div>
+        </div>
+
+        <!-- Formulario -->
+        <div class="form-section">
+            <h2>➕ Nueva Apuesta</h2>
+            <form id="betForm">
+                <div class="form-group">
+                    <label>Deporte/Evento</label>
+                    <input type="text" id="eventName" required placeholder="ej. Real Madrid vs Barcelona">
+                </div>
+                <div class="form-group">
+                    <label>Tipo de Apuesta</label>
+                    <input type="text" id="betType" required placeholder="ej. Gana Local, Más de 2.5 goles">
+                </div>
+                <div class="form-group">
+                    <label>Stake (€)</label>
+                    <input type="number" id="stake" step="0.01" required placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label>Cuota</label>
+                    <input type="number" id="odds" step="0.01" required placeholder="ej. 1.85">
+                </div>
+                <div class="form-group">
+                    <label>Estado</label>
+                    <select id="status" required>
+                        <option value="pending">Pendiente</option>
+                        <option value="win">Ganada</option>
+                        <option value="loss">Perdida</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Notas (opcional)</label>
+                    <textarea id="notes" rows="3" placeholder="Análisis, motivo de la apuesta..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Añadir Apuesta</button>
+            </form>
+        </div>
+
+        <!-- Filtros -->
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">Todas</button>
+            <button class="filter-btn" data-filter="pending">Pendientes</button>
+            <button class="filter-btn" data-filter="win">Ganadas</button>
+            <button class="filter-btn" data-filter="loss">Perdidas</button>
+        </div>
+
+        <!-- Lista de Apuestas -->
+        <div class="bet-list" id="betList">
+            <div class="empty-state">
+                <p>📊 No hay apuestas registradas</p>
+                <p style="font-size: 0.875rem; margin-top: 0.5rem;">Añade tu primera apuesta para comenzar</p>
+            </div>
+        </div>
+
+        <!-- Botón Resetear -->
+        <button class="btn btn-danger" id="resetBtn" style="margin-top: 2rem;">🗑️ Resetear Todos los Datos</button>
+    </div>
+
+    <script>
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('Service Worker registrado'))
+                .catch(err => console.log('Error al registrar SW:', err));
+        }
+
+        // PWA Install Prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installPrompt').classList.add('show');
+        });
+
+        document.getElementById('installBtn').addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                deferredPrompt = null;
+                document.getElementById('installPrompt').classList.remove('show');
+            }
+        });
+
+        // Data Management
+        class BankrollTracker {
+            constructor() {
+                this.bets = this.loadBets();
+                this.initialBankroll = this.loadInitialBankroll();
+                this.currentFilter = 'all';
+            }
+
+            loadBets() {
+                const saved = localStorage.getItem('bets');
+                return saved ? JSON.parse(saved) : [];
+            }
+
+            saveBets() {
+                localStorage.setItem('bets', JSON.stringify(this.bets));
+            }
+
+            loadInitialBankroll() {
+                const saved = localStorage.getItem('initialBankroll');
+                return saved ? parseFloat(saved) : 0;
+            }
+
+            saveInitialBankroll() {
+                localStorage.setItem('initialBankroll', this.initialBankroll.toString());
+            }
+
+            addBet(bet) {
+                bet.id = Date.now();
+                bet.date = new Date().toISOString();
+                this.bets.unshift(bet);
+                
+                if (this.initialBankroll === 0) {
+                    this.initialBankroll = parseFloat(bet.stake);
+                    this.saveInitialBankroll();
+                }
+                
+                this.saveBets();
+                this.render();
+            }
+
+            deleteBet(id) {
+                this.bets = this.bets.filter(b => b.id !== id);
+                this.saveBets();
+                this.render();
+            }
+
+            calculateStats() {
+                const stats = {
+                    totalBets: this.bets.length,
+                    wins: this.bets.filter(b => b.status === 'win').length,
+                    losses: this.bets.filter(b => b.status === 'loss').length,
+                    pending: this.bets.filter(b => b.status === 'pending').length,
+                    totalStaked: 0,
+                    profit: 0
+                };
+
+                this.bets.forEach(bet => {
+                    const stake = parseFloat(bet.stake);
+                    const odds = parseFloat(bet.odds);
+                    
+                    if (bet.status === 'win') {
+                        stats.profit += (stake * odds) - stake;
+                        stats.totalStaked += stake;
+                    } else if (bet.status === 'loss') {
+                        stats.profit -= stake;
+                        stats.totalStaked += stake;
+                    } else {
+                        stats.totalStaked += stake;
+                    }
+                });
+
+                stats.currentBankroll = this.initialBankroll + stats.profit;
+                stats.winRate = stats.totalBets > 0 
+                    ? ((stats.wins / (stats.wins + stats.losses)) * 100 || 0).toFixed(1)
+                    : 0;
+                stats.roi = this.initialBankroll > 0 
+                    ? ((stats.profit / this.initialBankroll) * 100).toFixed(1)
+                    : 0;
+
+                return stats;
+            }
+
+            render() {
+                const stats = this.calculateStats();
+                
+                // Update Stats
+                document.getElementById('bankrollValue').textContent = `€${stats.currentBankroll.toFixed(2)}`;
+                document.getElementById('bankrollValue').className = 'stat-value ' + 
+                    (stats.currentBankroll >= this.initialBankroll ? 'positive' : 'negative');
+                
+                const bankrollProgress = this.initialBankroll > 0 
+                    ? Math.min((stats.currentBankroll / (this.initialBankroll * 2)) * 100, 100)
+                    : 0;
+                document.getElementById('bankrollProgress').style.width = bankrollProgress + '%';
+                
+                document.getElementById('profitValue').textContent = 
+                    `${stats.profit >= 0 ? '+' : ''}€${stats.profit.toFixed(2)}`;
+                document.getElementById('profitValue').className = 'stat-value ' + 
+                    (stats.profit >= 0 ? 'positive' : 'negative');
+                
+                document.getElementById('roiValue').textContent = 
+                    `ROI: ${stats.roi >= 0 ? '+' : ''}${stats.roi}%`;
+                document.getElementById('roiValue').style.color = 
+                    stats.roi >= 0 ? 'var(--success)' : 'var(--danger)';
+                
+                document.getElementById('totalBets').textContent = stats.totalBets;
+                document.getElementById('winRate').textContent = stats.winRate + '%';
+
+                // Render Bets
+                this.renderBets();
+            }
+
+            renderBets() {
+                const betList = document.getElementById('betList');
+                const filteredBets = this.currentFilter === 'all' 
+                    ? this.bets 
+                    : this.bets.filter(b => b.status === this.currentFilter);
+
+                if (filteredBets.length === 0) {
+                    betList.innerHTML = `
+                        <div class="empty-state">
+                            <p>📊 No hay apuestas ${this.currentFilter === 'all' ? 'registradas' : 'en esta categoría'}</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                betList.innerHTML = filteredBets.map(bet => {
+                    const date = new Date(bet.date).toLocaleDateString('es-ES', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
+                    });
+                    
+                    const potential = bet.status === 'win' 
+                        ? (parseFloat(bet.stake) * parseFloat(bet.odds)).toFixed(2)
+                        : bet.status === 'loss'
+                        ? '0.00'
+                        : (parseFloat(bet.stake) * parseFloat(bet.odds)).toFixed(2);
+
+                    const statusText = {
+                        pending: 'Pendiente',
+                        win: 'Ganada',
+                        loss: 'Perdida'
+                    };
+
+                    return `
+                        <div class="bet-item ${bet.status}">
+                            <button class="delete-btn" onclick="tracker.deleteBet(${bet.id})">×</button>
+                            <div class="bet-header">
+                                <div>
+                                    <div class="bet-title">${bet.eventName}</div>
+                                    <div style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                                        ${bet.betType}
+                                    </div>
+                                </div>
+                                <div class="bet-amount" style="color: ${bet.status === 'win' ? 'var(--success)' : bet.status === 'loss' ? 'var(--danger)' : 'var(--warning)'}">
+                                    €${potential}
+                                </div>
+                            </div>
+                            <div class="bet-details">
+                                💶 Stake: €${parseFloat(bet.stake).toFixed(2)} | 
+                                📊 Cuota: ${parseFloat(bet.odds).toFixed(2)} | 
+                                📅 ${date}
+                            </div>
+                            ${bet.notes ? `<div class="bet-details" style="margin-top: 0.5rem;">📝 ${bet.notes}</div>` : ''}
+                            <span class="bet-status ${bet.status}">${statusText[bet.status]}</span>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            setFilter(filter) {
+                this.currentFilter = filter;
+                this.renderBets();
+            }
+
+            reset() {
+                if (confirm('¿Estás seguro de que quieres eliminar todos los datos? Esta acción no se puede deshacer.')) {
+                    localStorage.clear();
+                    this.bets = [];
+                    this.initialBankroll = 0;
+                    this.render();
+                }
+            }
+        }
+
+        const tracker = new BankrollTracker();
+        tracker.render();
+
+        // Form Submit
+        document.getElementById('betForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const bet = {
+                eventName: document.getElementById('eventName').value,
+                betType: document.getElementById('betType').value,
+                stake: document.getElementById('stake').value,
+                odds: document.getElementById('odds').value,
+                status: document.getElementById('status').value,
+                notes: document.getElementById('notes').value
+            };
+
+            tracker.addBet(bet);
+            e.target.reset();
+        });
+
+        // Filters
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                tracker.setFilter(btn.dataset.filter);
+            });
+        });
+
+        // Reset Button
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            tracker.reset();
+        });
+    </script>
+</body>
+</html>
