@@ -6,8 +6,9 @@ Una Progressive Web App (PWA) para gestionar tu bankroll de apuestas deportivas.
 
 - 📱 **Instalable como app nativa** en iOS y Android
 - 💾 **Almacenamiento local** - Todos tus datos se guardan en tu dispositivo
-- 🔒 **Privacidad total** - Sin servidores, sin seguimiento, sin cuentas
+- 🔒 **Privacidad total** - Sin servidores, sin seguimiento
 - ⚡ **Funciona offline** - No necesita conexión a internet
+- 🔐 **Autenticación Firebase** - Login seguro con email/contraseña o Google
 - 📊 **Estadísticas completas** - Bankroll, ROI, Win Rate, Profit/Loss
 - 🎯 **Filtros** - Visualiza apuestas por estado (Todas, Pendientes, Ganadas, Perdidas)
 - 📝 **Notas** - Añade análisis y comentarios a cada apuesta
@@ -57,7 +58,30 @@ Tu app estará disponible en:
 https://TU-USUARIO.github.io/bankroll-tracker/
 ```
 
-## 📱 Instalación en el móvil
+## � Configuración de Firebase (Autenticación)
+
+Esta versión incluye **autenticación segura** con Firebase. Para activarla:
+
+### Pasos rápidos:
+
+1. Ve a [Firebase Console](https://console.firebase.google.com)
+2. Crea un nuevo proyecto (o usa uno existente)
+3. Copia la configuración web de tu proyecto
+4. Actualiza [firebase-config.js](firebase-config.js) con tus credenciales
+5. Habilita Email/Contraseña en **Authentication** → **Sign-in method**
+6. (Opcional) Habilita Google login también
+
+**📖 Ver guía detallada en:** [SETUP_FIREBASE.md](SETUP_FIREBASE.md)
+
+### Características de autenticación:
+
+- ✅ Login con Email/Contraseña
+- ✅ Registro de nuevas cuentas
+- ✅ Login con Google
+- ✅ Recuperación de contraseña
+- ✅ Sesión persistente
+
+⚠️ **Importante**: Sin configurar Firebase, la app no funcionará. Sigue la guía [SETUP_FIREBASE.md](SETUP_FIREBASE.md)
 
 ### iPhone/iPad (Safari):
 

@@ -33,188 +33,9 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: var(--bg);
             color: var(--text);
+            padding-bottom: 80px;
             line-height: 1.6;
             overflow-x: hidden;
-        }
-
-        body.with-app {
-            padding-bottom: 80px;
-        }
-
-        /* ===== AUTH STYLES ===== */
-        .auth-container {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(79, 70, 229, 0.05));
-        }
-
-        .auth-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 2rem;
-            max-width: 400px;
-            width: 100%;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-
-        .auth-form {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .auth-header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .auth-header h1 {
-            font-size: 1.75rem;
-            margin-bottom: 0.5rem;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .auth-header p {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .form-group label {
-            color: var(--text-secondary);
-            font-size: 0.875rem;
-            font-weight: 500;
-        }
-
-        .form-group input {
-            padding: 0.75rem;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            color: var(--text);
-            font-size: 1rem;
-            transition: border-color 0.3s;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        .btn-auth {
-            padding: 0.875rem;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 1rem;
-        }
-
-        .btn-auth:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
-        }
-
-        .btn-auth:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .btn-google {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            background: var(--bg-tertiary);
-            color: var(--text);
-            border: 1px solid var(--border);
-            margin-top: 0.5rem;
-        }
-
-        .auth-divider {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            color: var(--text-secondary);
-            margin: 1rem 0;
-        }
-
-        .auth-divider::before,
-        .auth-divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: var(--border);
-        }
-
-        .auth-footer {
-            text-align: center;
-            margin-top: 1.5rem;
-            color: var(--text-secondary);
-            font-size: 0.875rem;
-        }
-
-        .auth-footer a {
-            color: var(--primary);
-            cursor: pointer;
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        .auth-footer a:hover {
-            text-decoration: underline;
-        }
-
-        .error-message {
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--danger);
-            padding: 0.75rem;
-            border-radius: 8px;
-            font-size: 0.875rem;
-            display: none;
-        }
-
-        .error-message.show {
-            display: block;
-        }
-
-        .success-message {
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--success);
-            padding: 0.75rem;
-            border-radius: 8px;
-            font-size: 0.875rem;
-            display: none;
-        }
-
-        .success-message.show {
-            display: block;
-        }
-
-        /* ===== ORIGINAL APP STYLES ===== */
-        #appContent {
-            display: none;
-        }
-
-        #appContent.active {
-            display: block;
-            padding-bottom: 80px;
         }
 
         .header {
@@ -225,24 +46,6 @@
             top: 0;
             z-index: 100;
             text-align: center;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .header-left {
-            flex: 1;
-            text-align: left;
-        }
-
-        .header-center {
-            flex: 1;
-            text-align: center;
-        }
-
-        .header-right {
-            flex: 1;
-            text-align: right;
         }
 
         .header-icon {
@@ -261,30 +64,6 @@
             font-size: 0.75rem;
             color: var(--text-secondary);
             font-weight: normal;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-        }
-
-        .logout-btn {
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--danger);
-            border: 1px solid var(--danger);
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.875rem;
-            transition: all 0.3s;
-        }
-
-        .logout-btn:hover {
-            background: var(--danger);
-            color: white;
         }
 
         .container {
@@ -872,21 +651,6 @@
             .time-filters {
                 flex-wrap: wrap;
             }
-
-            .header {
-                flex-wrap: wrap;
-                text-align: center;
-            }
-
-            .header-left, .header-center, .header-right {
-                flex: 1 1 100%;
-                text-align: center;
-            }
-
-            .user-info {
-                justify-content: center;
-                margin-top: 0.5rem;
-            }
         }
 
         .initial-bankroll-card {
@@ -929,417 +693,278 @@
             background: var(--success);
             transition: width 0.3s;
         }
-
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(99, 102, 241, 0.3);
-            border-radius: 50%;
-            border-top-color: var(--primary);
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
     </style>
 </head>
 <body>
-    <!-- ===== LOGIN PAGE ===== -->
-    <div id="loginPage" class="auth-container" style="display: none;">
-        <div class="auth-card">
-            <div class="auth-header">
-                <h1>Control de Banca</h1>
-                <p>Inicia sesión para continuar</p>
-            </div>
-
-            <form class="auth-form" id="loginForm">
-                <div class="error-message" id="loginError"></div>
-
-                <div class="form-group">
-                    <label for="loginEmail">Email</label>
-                    <input type="email" id="loginEmail" placeholder="tu@email.com" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="loginPassword">Contraseña</label>
-                    <input type="password" id="loginPassword" placeholder="••••••••" required>
-                </div>
-
-                <button type="submit" class="btn-auth" id="loginBtn">Iniciar Sesión</button>
-
-                <button type="button" class="btn-auth btn-google" id="googleLoginBtn">
-                    <span>🔐</span>
-                    <span>Google</span>
-                </button>
-
-                <div class="auth-divider">o</div>
-
-                <div class="auth-footer">
-                    ¿No tienes cuenta? <a onclick="showRegister()">Regístrate</a>
-                </div>
-
-                <div class="auth-footer">
-                    <a onclick="showForgotPassword()" style="font-size: 0.8rem;">¿Olvidaste tu contraseña?</a>
-                </div>
-            </form>
-        </div>
+    <div class="header">
+        <img src="icon-192.png" alt="Control de Banca" class="header-icon">
+        <h1>Control de Banca</h1>
+        <p class="header-subtitle">Registra cada apuesta · Mide cada ventaja</p>
     </div>
 
-    <!-- ===== REGISTER PAGE ===== -->
-    <div id="registerPage" class="auth-container" style="display: none;">
-        <div class="auth-card">
-            <div class="auth-header">
-                <h1>Crear Cuenta</h1>
-                <p>Únete y comienza a trackear</p>
+    <div class="container">
+        <!-- Dashboard Page -->
+        <div id="dashboardPage" class="page active">
+            <div id="initialBankrollSetup" style="display: none;">
+                <div class="initial-bankroll-card">
+                    <h2>💰 Banca Inicial</h2>
+                    <p style="color: rgba(255,255,255,0.8); margin-bottom: 1.5rem;">Configura tu bankroll para comenzar</p>
+                    <input type="number" id="initialBankrollInput" step="0.01" placeholder="100.00">
+                    <button class="btn btn-primary" id="setInitialBankroll" style="background: white; color: var(--primary); margin-top: 1rem;">Establecer Banca</button>
+                </div>
             </div>
 
-            <form class="auth-form" id="registerForm">
-                <div class="error-message" id="registerError"></div>
-                <div class="success-message" id="registerSuccess"></div>
-
-                <div class="form-group">
-                    <label for="registerEmail">Email</label>
-                    <input type="email" id="registerEmail" placeholder="tu@email.com" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="registerPassword">Contraseña</label>
-                    <input type="password" id="registerPassword" placeholder="••••••••" required minlength="6">
-                    <small style="color: var(--text-secondary); font-size: 0.75rem;">Mínimo 6 caracteres</small>
-                </div>
-
-                <div class="form-group">
-                    <label for="registerConfirm">Confirmar Contraseña</label>
-                    <input type="password" id="registerConfirm" placeholder="••••••••" required minlength="6">
-                </div>
-
-                <button type="submit" class="btn-auth" id="registerBtn">Crear Cuenta</button>
-
-                <div class="auth-footer">
-                    ¿Ya tienes cuenta? <a onclick="showLogin()">Inicia Sesión</a>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- ===== FORGOT PASSWORD PAGE ===== -->
-    <div id="forgotPasswordPage" class="auth-container" style="display: none;">
-        <div class="auth-card">
-            <div class="auth-header">
-                <h1>Recuperar Contraseña</h1>
-                <p>Te enviaremos un email para resetearla</p>
-            </div>
-
-            <form class="auth-form" id="forgotPasswordForm">
-                <div class="error-message" id="forgotError"></div>
-                <div class="success-message" id="forgotSuccess"></div>
-
-                <div class="form-group">
-                    <label for="forgotEmail">Email</label>
-                    <input type="email" id="forgotEmail" placeholder="tu@email.com" required>
-                </div>
-
-                <button type="submit" class="btn-auth" id="forgotBtn">Enviar Email</button>
-
-                <div class="auth-footer">
-                    <a onclick="showLogin()">← Volver al Login</a>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- ===== APP CONTENT ===== -->
-    <div id="appContent">
-        <div class="header">
-            <div class="header-left"></div>
-            <div class="header-center">
-                <img src="icon-192.png" alt="Control de Banca" class="header-icon" style="width: 30px; height: 30px;">
-                <h1>Control de Banca</h1>
-                <p class="header-subtitle">Registra cada apuesta · Mide cada ventaja</p>
-            </div>
-            <div class="header-right">
-                <button class="logout-btn" id="logoutBtn" onclick="handleLogout()">Logout</button>
-            </div>
-        </div>
-
-        <div class="container">
-            <!-- Dashboard Page -->
-            <div id="dashboardPage" class="page active">
-                <div id="initialBankrollSetup" style="display: none;">
-                    <div class="initial-bankroll-card">
-                        <h2>💰 Banca Inicial</h2>
-                        <p style="color: rgba(255,255,255,0.8); margin-bottom: 1.5rem;">Configura tu bankroll para comenzar</p>
-                        <input type="number" id="initialBankrollInput" step="0.01" placeholder="100.00">
-                        <button class="btn btn-primary" id="setInitialBankroll" style="background: white; color: var(--primary); margin-top: 1rem;">Establecer Banca</button>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Bankroll</div>
+                    <div class="stat-value" id="dashBankroll">€0</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="dashProgress"></div>
                     </div>
                 </div>
+                <div class="stat-card">
+                    <div class="stat-label">Beneficio</div>
+                    <div class="stat-value" id="dashProfit">€0</div>
+                    <div class="stat-subtext" id="dashROI">ROI: 0%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Apuestas</div>
+                    <div class="stat-value" id="dashBets">0</div>
+                    <div class="stat-subtext" id="dashWinRate">% Aciertos: 0%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Progresión</div>
+                    <div class="stat-value" id="dashProgression">0%</div>
+                    <div class="stat-subtext">vs. inicial</div>
+                </div>
+            </div>
 
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-label">Bankroll</div>
-                        <div class="stat-value" id="dashBankroll">€0</div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" id="dashProgress"></div>
+            <div class="chart-container">
+                <div class="chart-header">
+                    <span class="chart-title">Evolución</span>
+                    <div class="time-filters">
+                        <button class="time-filter" data-period="7">1s</button>
+                        <button class="time-filter active" data-period="30">1m</button>
+                        <button class="time-filter" data-period="90">3m</button>
+                        <button class="time-filter" data-period="365">1a</button>
+                    </div>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="dashChart" class="chart-canvas"></canvas>
+                </div>
+            </div>
+
+            <h3 style="margin: 1.5rem 0 1rem; color: var(--text);">Últimas apuestas</h3>
+            <div id="recentBets"></div>
+        </div>
+
+        <!-- Bets Page -->
+        <div id="betsPage" class="page">
+            <h2 style="margin-bottom: 1rem; color: var(--text);">Todas las apuestas</h2>
+            <div class="bet-list" id="allBets"></div>
+        </div>
+
+        <!-- Stats Page -->
+        <div id="statsPage" class="page">
+            <h2 style="margin-bottom: 1rem; color: var(--text);">Estadísticas</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Apostado</div>
+                    <div class="stat-value" id="statsStaked">€0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Yield</div>
+                    <div class="stat-value" id="statsYield">0%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Ganadas</div>
+                    <div class="stat-value stat-value positive" id="statsWins">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Perdidas</div>
+                    <div class="stat-value stat-value negative" id="statsLosses">0</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h3 class="chart-title" style="margin-bottom: 1rem;">Por Casa de Apuestas</h3>
+                <div id="houseStats"></div>
+            </div>
+
+            <div class="chart-container">
+                <h3 class="chart-title" style="margin-bottom: 1rem;">Por Deporte</h3>
+                <div id="sportStats"></div>
+            </div>
+        </div>
+
+        <!-- More Page -->
+        <div id="morePage" class="page">
+            <h2 style="margin-bottom: 1rem; color: var(--text);">Configuración</h2>
+            
+            <div class="settings-section">
+                <div class="settings-item" onclick="resetBankroll()">
+                    <span class="settings-icon">💰</span>
+                    <div class="settings-label">Cambiar Banca Inicial</div>
+                    <span class="settings-value" id="currentBankroll">€0</span>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <div class="settings-item">
+                    <span class="settings-icon">📊</span>
+                    <div class="settings-label">Total de Apuestas</div>
+                    <span class="settings-value" id="totalBetsCount">0</span>
+                </div>
+                <div class="settings-item">
+                    <span class="settings-icon">💾</span>
+                    <div class="settings-label">Datos almacenados</div>
+                    <span class="settings-value">Local</span>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <div class="settings-item" style="color: var(--danger);" onclick="resetAllData()">
+                    <span class="settings-icon">🗑️</span>
+                    <div class="settings-label">Resetear Todos los Datos</div>
+                    <span style="font-size: 1.25rem;">→</span>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 2rem; color: var(--text-secondary); font-size: 0.875rem;">
+                <p>Control de Banca v1.0</p>
+                <p style="margin-top: 0.5rem;">Desarrollado con ❤️</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Bet Modal -->
+    <div class="modal" id="betModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Añadir Apuesta</h2>
+                <button class="close-modal" onclick="closeBetModal()">×</button>
+            </div>
+            
+            <form id="betForm">
+                <input type="hidden" id="editBetId">
+                
+                <div class="form-group">
+                    <label>Tipo de Apuesta</label>
+                    <div class="bet-type-selector">
+                        <div class="bet-type-option active" data-type="simple">
+                            <div class="icon">🎯</div>
+                            <div class="label">Simple</div>
+                        </div>
+                        <div class="bet-type-option" data-type="combined">
+                            <div class="icon">📊</div>
+                            <div class="label">Combinada</div>
                         </div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Beneficio</div>
-                        <div class="stat-value" id="dashProfit">€0</div>
-                        <div class="stat-subtext" id="dashROI">ROI: 0%</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Apuestas</div>
-                        <div class="stat-value" id="dashBets">0</div>
-                        <div class="stat-subtext" id="dashWinRate">% Aciertos: 0%</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Progresión</div>
-                        <div class="stat-value" id="dashProgression">0%</div>
-                        <div class="stat-subtext">vs. inicial</div>
-                    </div>
                 </div>
 
-                <div class="chart-container">
-                    <div class="chart-header">
-                        <span class="chart-title">Evolución</span>
-                        <div class="time-filters">
-                            <button class="time-filter" data-period="7">1s</button>
-                            <button class="time-filter active" data-period="30">1m</button>
-                            <button class="time-filter" data-period="90">3m</button>
-                            <button class="time-filter" data-period="365">1a</button>
-                        </div>
-                    </div>
-                    <div class="chart-wrapper">
-                        <canvas id="dashChart" class="chart-canvas"></canvas>
-                    </div>
+                <div class="form-group">
+                    <label>Casa de Apuestas</label>
+                    <select id="betHouse" required>
+                        <option value="">Seleccionar</option>
+                        <option value="Bet365">Bet365</option>
+                        <option value="Betfair">Betfair</option>
+                        <option value="Betway">Betway</option>
+                        <option value="888sport">888sport</option>
+                        <option value="William Hill">William Hill</option>
+                        <option value="Codere">Codere</option>
+                        <option value="Bwin">Bwin</option>
+                        <option value="Sportium">Sportium</option>
+                        <option value="Marathonbet">Marathonbet</option>
+                        <option value="Otro">Otro</option>
+                    </select>
                 </div>
 
-                <h3 style="margin: 1.5rem 0 1rem; color: var(--text);">Últimas apuestas</h3>
-                <div id="recentBets"></div>
-            </div>
-
-            <!-- Bets Page -->
-            <div id="betsPage" class="page">
-                <h2 style="margin-bottom: 1rem; color: var(--text);">Todas las apuestas</h2>
-                <div class="bet-list" id="allBets"></div>
-            </div>
-
-            <!-- Stats Page -->
-            <div id="statsPage" class="page">
-                <h2 style="margin-bottom: 1rem; color: var(--text);">Estadísticas</h2>
-                
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-label">Total Apostado</div>
-                        <div class="stat-value" id="statsStaked">€0</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Yield</div>
-                        <div class="stat-value" id="statsYield">0%</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Ganadas</div>
-                        <div class="stat-value stat-value positive" id="statsWins">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Perdidas</div>
-                        <div class="stat-value stat-value negative" id="statsLosses">0</div>
-                    </div>
+                <div class="form-group">
+                    <label>Deporte</label>
+                    <select id="betSport" required>
+                        <option value="">Seleccionar</option>
+                        <option value="⚽ Fútbol">⚽ Fútbol</option>
+                        <option value="🏀 Baloncesto">🏀 Baloncesto</option>
+                        <option value="🎾 Tenis">🎾 Tenis</option>
+                        <option value="🏈 Fútbol Americano">🏈 Fútbol Americano</option>
+                        <option value="🏒 Hockey">🏒 Hockey</option>
+                        <option value="⚾ Béisbol">⚾ Béisbol</option>
+                        <option value="🥊 Boxeo">🥊 Boxeo</option>
+                        <option value="🏐 Voleibol">🏐 Voleibol</option>
+                        <option value="🏁 Automovilismo">🏁 Automovilismo</option>
+                        <option value="🎮 eSports">🎮 eSports</option>
+                    </select>
                 </div>
 
-                <div class="chart-container">
-                    <h3 class="chart-title" style="margin-bottom: 1rem;">Por Casa de Apuestas</h3>
-                    <div id="houseStats"></div>
+                <div class="form-group">
+                    <label>Evento</label>
+                    <input type="text" id="betEvent" required placeholder="ej. Real Madrid vs Barcelona">
                 </div>
 
-                <div class="chart-container">
-                    <h3 class="chart-title" style="margin-bottom: 1rem;">Por Deporte</h3>
-                    <div id="sportStats"></div>
-                </div>
-            </div>
-
-            <!-- More Page -->
-            <div id="morePage" class="page">
-                <h2 style="margin-bottom: 1rem; color: var(--text);">Configuración</h2>
-                
-                <div class="settings-section">
-                    <div class="settings-item" onclick="resetBankroll()">
-                        <span class="settings-icon">💰</span>
-                        <div class="settings-label">Cambiar Banca Inicial</div>
-                        <span class="settings-value" id="currentBankroll">€0</span>
-                    </div>
+                <div class="form-group">
+                    <label>Mercado</label>
+                    <input type="text" id="betMarket" required placeholder="ej. Gana Local, Más de 2.5">
                 </div>
 
-                <div class="settings-section">
-                    <div class="settings-item">
-                        <span class="settings-icon">📊</span>
-                        <div class="settings-label">Total de Apuestas</div>
-                        <span class="settings-value" id="totalBetsCount">0</span>
-                    </div>
-                    <div class="settings-item">
-                        <span class="settings-icon">💾</span>
-                        <div class="settings-label">Datos almacenados</div>
-                        <span class="settings-value">Local + Firebase</span>
-                    </div>
-                </div>
-
-                <div class="settings-section">
-                    <div class="settings-item" style="color: var(--danger);" onclick="resetAllData()">
-                        <span class="settings-icon">🗑️</span>
-                        <div class="settings-label">Resetear Todos los Datos</div>
-                        <span style="font-size: 1.25rem;">→</span>
-                    </div>
-                </div>
-
-                <div style="text-align: center; margin-top: 2rem; color: var(--text-secondary); font-size: 0.875rem;">
-                    <p>Control de Banca v2.0</p>
-                    <p style="margin-top: 0.25rem;">Con autenticación Firebase</p>
-                    <p style="margin-top: 0.5rem;">Desarrollado con ❤️</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Add/Edit Bet Modal -->
-        <div class="modal" id="betModal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2 class="modal-title" id="modalTitle">Añadir Apuesta</h2>
-                    <button class="close-modal" onclick="closeBetModal()">×</button>
-                </div>
-                
-                <form id="betForm">
-                    <input type="hidden" id="editBetId">
-                    
+                <div class="form-row">
                     <div class="form-group">
-                        <label>Tipo de Apuesta</label>
-                        <div class="bet-type-selector">
-                            <div class="bet-type-option active" data-type="simple">
-                                <div class="icon">🎯</div>
-                                <div class="label">Simple</div>
-                            </div>
-                            <div class="bet-type-option" data-type="combined">
-                                <div class="icon">📊</div>
-                                <div class="label">Combinada</div>
-                            </div>
-                        </div>
+                        <label>Cuota</label>
+                        <input type="number" id="betOdds" step="0.01" required placeholder="1.85">
                     </div>
-
                     <div class="form-group">
-                        <label>Casa de Apuestas</label>
-                        <select id="betHouse" required>
-                            <option value="">Seleccionar</option>
-                            <option value="Bet365">Bet365</option>
-                            <option value="Betfair">Betfair</option>
-                            <option value="Betway">Betway</option>
-                            <option value="888sport">888sport</option>
-                            <option value="William Hill">William Hill</option>
-                            <option value="Codere">Codere</option>
-                            <option value="Bwin">Bwin</option>
-                            <option value="Sportium">Sportium</option>
-                            <option value="Marathonbet">Marathonbet</option>
-                            <option value="Otro">Otro</option>
+                        <label>Estado</label>
+                        <select id="betStatus" required>
+                            <option value="pending">Pendiente</option>
+                            <option value="win">Ganada</option>
+                            <option value="loss">Perdida</option>
                         </select>
                     </div>
+                </div>
 
-                    <div class="form-group">
-                        <label>Deporte</label>
-                        <select id="betSport" required>
-                            <option value="">Seleccionar</option>
-                            <option value="⚽ Fútbol">⚽ Fútbol</option>
-                            <option value="🏀 Baloncesto">🏀 Baloncesto</option>
-                            <option value="🎾 Tenis">🎾 Tenis</option>
-                            <option value="🏈 Fútbol Americano">🏈 Fútbol Americano</option>
-                            <option value="🏒 Hockey">🏒 Hockey</option>
-                            <option value="⚾ Béisbol">⚾ Béisbol</option>
-                            <option value="🥊 Boxeo">🥊 Boxeo</option>
-                            <option value="🏐 Voleibol">🏐 Voleibol</option>
-                            <option value="🏁 Automovilismo">🏁 Automovilismo</option>
-                            <option value="🎮 eSports">🎮 eSports</option>
-                        </select>
+                <div class="form-group">
+                    <label>Importe</label>
+                    <div class="stake-toggle">
+                        <button type="button" class="stake-option active" data-stake-type="currency">€</button>
+                        <button type="button" class="stake-option" data-stake-type="percent">%</button>
                     </div>
+                    <input type="number" id="betStake" step="0.01" required placeholder="10.00">
+                </div>
 
-                    <div class="form-group">
-                        <label>Evento</label>
-                        <input type="text" id="betEvent" required placeholder="ej. Real Madrid vs Barcelona">
-                    </div>
+                <div class="form-group">
+                    <label>Notas (opcional)</label>
+                    <textarea id="betNotes" rows="3" placeholder="Análisis, motivo..."></textarea>
+                </div>
 
-                    <div class="form-group">
-                        <label>Mercado</label>
-                        <input type="text" id="betMarket" required placeholder="ej. Gana Local, Más de 2.5">
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Cuota</label>
-                            <input type="number" id="betOdds" step="0.01" required placeholder="1.85">
-                        </div>
-                        <div class="form-group">
-                            <label>Estado</label>
-                            <select id="betStatus" required>
-                                <option value="pending">Pendiente</option>
-                                <option value="win">Ganada</option>
-                                <option value="loss">Perdida</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Importe</label>
-                        <div class="stake-toggle">
-                            <button type="button" class="stake-option active" data-stake-type="currency">€</button>
-                            <button type="button" class="stake-option" data-stake-type="percent">%</button>
-                        </div>
-                        <input type="number" id="betStake" step="0.01" required placeholder="10.00">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Notas (opcional)</label>
-                        <textarea id="betNotes" rows="3" placeholder="Análisis, motivo..."></textarea>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">Guardar Apuesta</button>
-                    <button type="button" class="btn btn-secondary" onclick="closeBetModal()">Cancelar</button>
-                </form>
-            </div>
+                <button type="submit" class="btn btn-primary">Guardar Apuesta</button>
+                <button type="button" class="btn btn-secondary" onclick="closeBetModal()">Cancelar</button>
+            </form>
         </div>
-
-        <!-- Bottom Navigation -->
-        <nav class="bottom-nav">
-            <button class="nav-item active" data-page="dashboardPage">
-                <span class="nav-icon">🏠</span>
-                <span class="nav-label">Inicio</span>
-            </button>
-            <button class="nav-item" data-page="betsPage">
-                <span class="nav-icon">📝</span>
-                <span class="nav-label">Apuestas</span>
-            </button>
-            <button class="nav-item" onclick="openBetModal()">
-                <button class="fab-button">+</button>
-            </button>
-            <button class="nav-item" data-page="statsPage">
-                <span class="nav-icon">📊</span>
-                <span class="nav-label">Estadísticas</span>
-            </button>
-            <button class="nav-item" data-page="morePage">
-                <span class="nav-icon">⚙️</span>
-                <span class="nav-label">Más</span>
-            </button>
-        </nav>
     </div>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js"></script>
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <button class="nav-item active" data-page="dashboardPage">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-label">Inicio</span>
+        </button>
+        <button class="nav-item" data-page="betsPage">
+            <span class="nav-icon">📝</span>
+            <span class="nav-label">Apuestas</span>
+        </button>
+        <button class="nav-item" onclick="openBetModal()">
+            <button class="fab-button">+</button>
+        </button>
+        <button class="nav-item" data-page="statsPage">
+            <span class="nav-icon">📊</span>
+            <span class="nav-label">Estadísticas</span>
+        </button>
+        <button class="nav-item" data-page="morePage">
+            <span class="nav-icon">⚙️</span>
+            <span class="nav-label">Más</span>
+        </button>
+    </nav>
 
-    <!-- Firebase Config -->
-    <script src="firebase-config.js"></script>
-
-    <!-- Auth Module -->
-    <script src="auth.js"></script>
-
-    <!-- ORIGINAL APP SCRIPT -->
     <script>
         // Service Worker
         if ('serviceWorker' in navigator) {
@@ -1924,172 +1549,6 @@
             if (tracker.initialBankroll > 0) {
                 const stats = tracker.calculateStats(tracker.chartPeriod);
                 tracker.drawChart('dashChart', stats);
-            }
-        });
-
-        // ===== AUTH HANDLERS =====
-
-        // Show/Hide Auth Pages
-        function showLogin() {
-            document.getElementById('loginPage').style.display = 'flex';
-            document.getElementById('registerPage').style.display = 'none';
-            document.getElementById('forgotPasswordPage').style.display = 'none';
-        }
-
-        function showRegister() {
-            document.getElementById('loginPage').style.display = 'none';
-            document.getElementById('registerPage').style.display = 'flex';
-            document.getElementById('forgotPasswordPage').style.display = 'none';
-        }
-
-        function showForgotPassword() {
-            document.getElementById('loginPage').style.display = 'none';
-            document.getElementById('registerPage').style.display = 'none';
-            document.getElementById('forgotPasswordPage').style.display = 'flex';
-        }
-
-        // Show App (when authenticated)
-        function showApp() {
-            document.body.classList.add('with-app');
-            document.getElementById('appContent').classList.add('active');
-            document.getElementById('loginPage').style.display = 'none';
-            document.getElementById('registerPage').style.display = 'none';
-            document.getElementById('forgotPasswordPage').style.display = 'none';
-        }
-
-        // Hide App (when not authenticated)
-        function hideApp() {
-            document.body.classList.remove('with-app');
-            document.getElementById('appContent').classList.remove('active');
-            showLogin();
-        }
-
-        // Login Form Handler
-        document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            const btn = document.getElementById('loginBtn');
-            const error = document.getElementById('loginError');
-
-            btn.disabled = true;
-            btn.innerHTML = '<span class="loading"></span>';
-
-            const result = await authManager.login(email, password);
-
-            if (!result.success) {
-                error.textContent = result.message;
-                error.classList.add('show');
-            } else {
-                error.classList.remove('show');
-                document.getElementById('loginForm').reset();
-            }
-
-            btn.disabled = false;
-            btn.textContent = 'Iniciar Sesión';
-        });
-
-        // Register Form Handler
-        document.getElementById('registerForm')?.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const email = document.getElementById('registerEmail').value;
-            const password = document.getElementById('registerPassword').value;
-            const confirm = document.getElementById('registerConfirm').value;
-            const btn = document.getElementById('registerBtn');
-            const error = document.getElementById('registerError');
-            const success = document.getElementById('registerSuccess');
-
-            if (password !== confirm) {
-                error.textContent = 'Las contraseñas no coinciden';
-                error.classList.add('show');
-                return;
-            }
-
-            btn.disabled = true;
-            btn.innerHTML = '<span class="loading"></span>';
-
-            const result = await authManager.register(email, password);
-
-            if (!result.success) {
-                error.textContent = result.message;
-                error.classList.add('show');
-                success.classList.remove('show');
-            } else {
-                success.textContent = '¡Cuenta creada! Iniciando sesión...';
-                success.classList.add('show');
-                error.classList.remove('show');
-                document.getElementById('registerForm').reset();
-            }
-
-            btn.disabled = false;
-            btn.textContent = 'Crear Cuenta';
-        });
-
-        // Forgot Password Form Handler
-        document.getElementById('forgotPasswordForm')?.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const email = document.getElementById('forgotEmail').value;
-            const btn = document.getElementById('forgotBtn');
-            const error = document.getElementById('forgotError');
-            const success = document.getElementById('forgotSuccess');
-
-            btn.disabled = true;
-            btn.innerHTML = '<span class="loading"></span>';
-
-            const result = await authManager.resetPassword(email);
-
-            if (!result.success) {
-                error.textContent = result.message;
-                error.classList.add('show');
-                success.classList.remove('show');
-            } else {
-                success.textContent = result.message;
-                success.classList.add('show');
-                error.classList.remove('show');
-                document.getElementById('forgotPasswordForm').reset();
-                setTimeout(() => showLogin(), 3000);
-            }
-
-            btn.disabled = false;
-            btn.textContent = 'Enviar Email';
-        });
-
-        // Google Login Handler
-        document.getElementById('googleLoginBtn')?.addEventListener('click', async () => {
-            const btn = document.getElementById('googleLoginBtn');
-            const error = document.getElementById('loginError');
-
-            btn.disabled = true;
-            btn.innerHTML = '<span class="loading"></span>';
-
-            const result = await authManager.loginWithGoogle();
-
-            if (!result.success) {
-                error.textContent = result.message;
-                error.classList.add('show');
-                btn.disabled = false;
-                btn.innerHTML = '<span>🔐</span><span>Google</span>';
-            }
-        });
-
-        // Logout Handler
-        async function handleLogout() {
-            if (confirm('¿Desconectar de la aplicación?')) {
-                const result = await authManager.logout();
-                if (result.success) {
-                    localStorage.clear();
-                    location.reload();
-                }
-            }
-        }
-
-        // Initialize auth state on page load
-        window.addEventListener('load', () => {
-            if (!authManager.isAuthenticated()) {
-                hideApp();
             }
         });
     </script>

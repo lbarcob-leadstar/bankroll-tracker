@@ -1,3 +1,15 @@
+#!/bin/bash
+
+# Script para agregar autenticación Firebase al index.html
+
+OUTPUT_FILE="index.html"
+
+# Leer el archivo backup
+read -r -d '' BACKUP_CONTENT < "index-backup.html"
+
+# Crear el nuevo archivo con autenticación
+
+cat > "$OUTPUT_FILE" << 'ENDOFFILE'
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -2095,3 +2107,6 @@
     </script>
 </body>
 </html>
+ENDOFFILE
+
+echo "✅ index.html con autenticación Firebase creado exitosamente"
