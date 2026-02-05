@@ -16,8 +16,8 @@
         }
 
         :root {
-            --primary: #3b82f6;
-            --primary-dark: #2563eb;
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
             --success: #10b981;
             --danger: #ef4444;
             --warning: #f59e0b;
@@ -35,11 +35,12 @@
             color: var(--text);
             padding-bottom: 80px;
             line-height: 1.6;
+            overflow-x: hidden;
         }
 
         .header {
             background: var(--bg-secondary);
-            padding: 1.5rem 1rem;
+            padding: 1rem;
             box-shadow: 0 2px 10px rgba(0,0,0,0.3);
             position: sticky;
             top: 0;
@@ -48,19 +49,19 @@
         }
 
         .header-icon {
-            width: 48px;
-            height: 48px;
+            width: 40px;
+            height: 40px;
             margin: 0 auto 0.5rem;
         }
 
         .header h1 {
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             color: var(--text);
             margin-bottom: 0.25rem;
         }
 
         .header-subtitle {
-            font-size: 0.875rem;
+            font-size: 0.75rem;
             color: var(--text-secondary);
             font-weight: normal;
         }
@@ -71,11 +72,82 @@
             padding: 1rem;
         }
 
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            padding: 0.5rem 0;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            background: none;
+            color: var(--text-secondary);
+            text-decoration: none;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .nav-icon {
+            font-size: 1.5rem;
+        }
+
+        .nav-label {
+            font-size: 0.7rem;
+        }
+
+        .fab-button {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            font-size: 2rem;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+            margin-top: -28px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fab-button:hover {
+            transform: scale(1.1) rotate(90deg);
+        }
+
+        /* Stats Grid */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-template-columns: repeat(2, 1fr);
             gap: 1rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
         }
 
         .stat-card {
@@ -105,96 +177,77 @@
             color: var(--danger);
         }
 
-        .form-section {
+        .stat-subtext {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        /* Chart */
+        .chart-container {
             background: var(--bg-secondary);
             padding: 1.5rem;
             border-radius: 12px;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             border: 1px solid var(--border);
         }
 
-        .form-section h2 {
-            margin-bottom: 1rem;
-            color: var(--primary);
-            font-size: 1.25rem;
-        }
-
-        .form-group {
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 1rem;
         }
 
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-
-        input, select, textarea {
-            width: 100%;
-            padding: 0.75rem;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border);
-            border-radius: 8px;
+        .chart-title {
             color: var(--text);
-            font-size: 1rem;
-            transition: border-color 0.3s;
-        }
-
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        .btn {
-            padding: 0.875rem 1.5rem;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
+            font-size: 1.1rem;
             font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            width: 100%;
-            margin-top: 0.5rem;
         }
 
-        .btn-primary {
-            background: var(--primary);
-            color: white;
+        .time-filters {
+            display: flex;
+            gap: 0.5rem;
         }
 
-        .btn-primary:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-        }
-
-        .btn-secondary {
+        .time-filter {
+            padding: 0.4rem 0.8rem;
             background: var(--bg-tertiary);
-            color: var(--text);
             border: 1px solid var(--border);
+            border-radius: 20px;
+            color: var(--text);
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: all 0.3s;
         }
 
-        .btn-danger {
-            background: var(--danger);
+        .time-filter.active {
+            background: var(--primary);
+            border-color: var(--primary);
             color: white;
         }
 
+        .chart-wrapper {
+            position: relative;
+            height: 200px;
+            margin-top: 1rem;
+        }
+
+        .chart-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Bet List */
         .bet-list {
-            margin-top: 2rem;
+            margin-top: 1rem;
         }
 
         .bet-item {
             background: var(--bg-secondary);
             padding: 1rem;
             margin-bottom: 1rem;
-            border-radius: 8px;
+            border-radius: 12px;
             border-left: 4px solid var(--border);
             position: relative;
         }
@@ -219,44 +272,35 @@
             padding-right: 70px;
         }
 
+        .bet-info {
+            flex: 1;
+        }
+
         .bet-title {
             font-weight: 600;
-            font-size: 1.1rem;
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .bet-meta {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        .bet-badge {
+            background: var(--bg-tertiary);
+            padding: 0.15rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
         }
 
         .bet-amount {
             font-weight: bold;
             font-size: 1.1rem;
-        }
-
-        .bet-details {
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            margin-top: 0.5rem;
-        }
-
-        .bet-status {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-top: 0.5rem;
-        }
-
-        .bet-status.win {
-            background: rgba(16, 185, 129, 0.2);
-            color: var(--success);
-        }
-
-        .bet-status.loss {
-            background: rgba(239, 68, 68, 0.2);
-            color: var(--danger);
-        }
-
-        .bet-status.pending {
-            background: rgba(245, 158, 11, 0.2);
-            color: var(--warning);
         }
 
         .bet-actions {
@@ -288,87 +332,36 @@
             color: white;
         }
 
-        .delete-btn {
-            background: rgba(239, 68, 68, 0.2);
-            color: var(--danger);
-            border-color: var(--danger);
-        }
-
         .delete-btn:hover {
             background: var(--danger);
             color: white;
         }
 
-        .filters {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .filter-btn {
-            padding: 0.5rem 1rem;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            color: var(--text);
-            cursor: pointer;
-            font-size: 0.875rem;
-            transition: all 0.3s;
-        }
-
-        .filter-btn.active {
-            background: var(--primary);
-            border-color: var(--primary);
-            color: white;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 3rem 1rem;
-            color: var(--text-secondary);
-        }
-
-        .chart-container {
-            background: var(--bg-secondary);
-            padding: 1.5rem;
+        .bet-status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
             border-radius: 12px;
-            margin-bottom: 2rem;
-            border: 1px solid var(--border);
-        }
-
-        .chart-container h2 {
-            margin-bottom: 1rem;
-            color: var(--primary);
-            font-size: 1.25rem;
-        }
-
-        .chart-wrapper {
-            position: relative;
-            height: 250px;
-            margin-top: 1rem;
-        }
-
-        .chart-canvas {
-            width: 100%;
-            height: 100%;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: var(--bg-tertiary);
-            border-radius: 4px;
-            overflow: hidden;
+            font-size: 0.7rem;
+            font-weight: 600;
             margin-top: 0.5rem;
         }
 
-        .progress-fill {
-            height: 100%;
-            background: var(--success);
-            transition: width 0.3s;
+        .bet-status.win {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
         }
 
+        .bet-status.loss {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .bet-status.pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -376,11 +369,12 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 1000;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 2000;
             align-items: center;
             justify-content: center;
             padding: 1rem;
+            overflow-y: auto;
         }
 
         .modal.show {
@@ -389,8 +383,8 @@
 
         .modal-content {
             background: var(--bg-secondary);
-            border-radius: 12px;
-            padding: 2rem;
+            border-radius: 16px;
+            padding: 1.5rem;
             max-width: 500px;
             width: 100%;
             max-height: 90vh;
@@ -405,9 +399,10 @@
             margin-bottom: 1.5rem;
         }
 
-        .modal-header h2 {
+        .modal-title {
             color: var(--primary);
             font-size: 1.25rem;
+            font-weight: 600;
         }
 
         .close-modal {
@@ -424,6 +419,222 @@
             justify-content: center;
         }
 
+        /* Form */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .btn {
+            padding: 0.875rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        /* Bet Type Selector */
+        .bet-type-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .bet-type-option {
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .bet-type-option.active {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .bet-type-option .icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .bet-type-option .label {
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        /* Stake Type Toggle */
+        .stake-toggle {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            background: var(--bg-tertiary);
+            padding: 0.25rem;
+            border-radius: 8px;
+        }
+
+        .stake-option {
+            padding: 0.5rem;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .stake-option.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Selections List (for combined bets) */
+        .selections-list {
+            margin: 1rem 0;
+        }
+
+        .selection-item {
+            background: var(--bg-tertiary);
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .remove-selection {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+
+        .add-selection-btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--bg-tertiary);
+            border: 2px dashed var(--border);
+            color: var(--primary);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-top: 0.5rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Settings Page */
+        .settings-section {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .settings-item {
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+        }
+
+        .settings-item:last-child {
+            border-bottom: none;
+        }
+
+        .settings-item:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .settings-icon {
+            font-size: 1.25rem;
+            margin-right: 1rem;
+        }
+
+        .settings-label {
+            flex: 1;
+        }
+
+        .settings-value {
+            color: var(--text-secondary);
+            margin-right: 0.5rem;
+        }
+
         @media (max-width: 640px) {
             .stats-grid {
                 grid-template-columns: 1fr 1fr;
@@ -436,33 +647,51 @@
             .form-row {
                 grid-template-columns: 1fr;
             }
+
+            .time-filters {
+                flex-wrap: wrap;
+            }
         }
 
-        .install-prompt {
-            background: var(--primary);
-            padding: 1rem;
-            margin: 1rem;
-            border-radius: 8px;
-            display: none;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .install-prompt.show {
-            display: flex;
-        }
-
-        .roi-indicator {
-            font-size: 0.875rem;
-            margin-top: 0.25rem;
-        }
-
-        .initial-bankroll-section {
-            background: var(--bg-secondary);
-            padding: 1.5rem;
-            border-radius: 12px;
+        .initial-bankroll-card {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            padding: 2rem;
+            border-radius: 16px;
+            text-align: center;
             margin-bottom: 2rem;
-            border: 1px solid var(--border);
+            box-shadow: 0 8px 16px rgba(99, 102, 241, 0.3);
+        }
+
+        .initial-bankroll-card h2 {
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .initial-bankroll-card input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            text-align: center;
+            font-size: 1.5rem;
+        }
+
+        .initial-bankroll-card input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--success);
+            transition: width 0.3s;
         }
     </style>
 </head>
@@ -473,197 +702,290 @@
         <p class="header-subtitle">Registra cada apuesta · Mide cada ventaja</p>
     </div>
 
-    <div class="install-prompt" id="installPrompt">
-        <span>📱 Instala la app en tu móvil</span>
-        <button class="btn btn-primary" id="installBtn" style="width: auto; padding: 0.5rem 1rem; margin: 0;">Instalar</button>
-    </div>
-
     <div class="container">
-        <!-- Banca Inicial -->
-        <div class="initial-bankroll-section" id="initialBankrollSection">
-            <h2 style="color: var(--primary); font-size: 1.25rem; margin-bottom: 1rem;">💰 Configurar Banca Inicial</h2>
-            <div class="form-group">
-                <label>Banca Inicial (€)</label>
-                <input type="number" id="initialBankrollInput" step="0.01" placeholder="Introduce tu banca inicial">
-            </div>
-            <button class="btn btn-primary" id="setInitialBankroll">Establecer Banca</button>
-        </div>
-
-        <!-- Estadísticas -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-label">Bankroll</div>
-                <div class="stat-value" id="bankrollValue">€0</div>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="bankrollProgress"></div>
+        <!-- Dashboard Page -->
+        <div id="dashboardPage" class="page active">
+            <div id="initialBankrollSetup" style="display: none;">
+                <div class="initial-bankroll-card">
+                    <h2>💰 Banca Inicial</h2>
+                    <p style="color: rgba(255,255,255,0.8); margin-bottom: 1.5rem;">Configura tu bankroll para comenzar</p>
+                    <input type="number" id="initialBankrollInput" step="0.01" placeholder="100.00">
+                    <button class="btn btn-primary" id="setInitialBankroll" style="background: white; color: var(--primary); margin-top: 1rem;">Establecer Banca</button>
                 </div>
             </div>
-            <div class="stat-card">
-                <div class="stat-label">Beneficio/Pérdida</div>
-                <div class="stat-value" id="profitValue">€0</div>
-                <div class="roi-indicator" id="roiValue">ROI: 0%</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Apuestas Totales</div>
-                <div class="stat-value" id="totalBets">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">% Aciertos</div>
-                <div class="stat-value" id="winRate">0%</div>
-            </div>
-        </div>
 
-        <!-- Gráfico de Evolución -->
-        <div class="chart-container" id="chartContainer" style="display: none;">
-            <h2>📈 Evolución del Bankroll</h2>
-            <div class="chart-wrapper">
-                <canvas id="chartCanvas" class="chart-canvas"></canvas>
-            </div>
-        </div>
-
-        <!-- Formulario -->
-        <div class="form-section">
-            <h2>➕ Nueva Apuesta</h2>
-            <form id="betForm">
-                <div class="form-group">
-                    <label>Deporte/Evento</label>
-                    <input type="text" id="eventName" required placeholder="ej. Real Madrid vs Barcelona">
-                </div>
-                <div class="form-group">
-                    <label>Tipo de Apuesta</label>
-                    <input type="text" id="betType" required placeholder="ej. Gana Local, Más de 2.5 goles">
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Stake (€)</label>
-                        <input type="number" id="stake" step="0.01" required placeholder="0.00">
-                    </div>
-                    <div class="form-group">
-                        <label>Unidades</label>
-                        <input type="number" id="units" step="0.1" placeholder="ej. 1.0">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Bankroll</div>
+                    <div class="stat-value" id="dashBankroll">€0</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="dashProgress"></div>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label>Cuota</label>
-                    <input type="number" id="odds" step="0.01" required placeholder="ej. 1.85">
+                <div class="stat-card">
+                    <div class="stat-label">Beneficio</div>
+                    <div class="stat-value" id="dashProfit">€0</div>
+                    <div class="stat-subtext" id="dashROI">ROI: 0%</div>
                 </div>
-                <div class="form-group">
-                    <label>Estado</label>
-                    <select id="status" required>
-                        <option value="pending">Pendiente</option>
-                        <option value="win">Ganada</option>
-                        <option value="loss">Perdida</option>
-                    </select>
+                <div class="stat-card">
+                    <div class="stat-label">Apuestas</div>
+                    <div class="stat-value" id="dashBets">0</div>
+                    <div class="stat-subtext" id="dashWinRate">% Aciertos: 0%</div>
                 </div>
-                <div class="form-group">
-                    <label>Notas (opcional)</label>
-                    <textarea id="notes" rows="3" placeholder="Análisis, motivo de la apuesta..."></textarea>
+                <div class="stat-card">
+                    <div class="stat-label">Progresión</div>
+                    <div class="stat-value" id="dashProgression">0%</div>
+                    <div class="stat-subtext">vs. inicial</div>
                 </div>
-                <button type="submit" class="btn btn-primary">Añadir Apuesta</button>
-            </form>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-header">
+                    <span class="chart-title">Evolución</span>
+                    <div class="time-filters">
+                        <button class="time-filter" data-period="7">1s</button>
+                        <button class="time-filter active" data-period="30">1m</button>
+                        <button class="time-filter" data-period="90">3m</button>
+                        <button class="time-filter" data-period="365">1a</button>
+                    </div>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="dashChart" class="chart-canvas"></canvas>
+                </div>
+            </div>
+
+            <h3 style="margin: 1.5rem 0 1rem; color: var(--text);">Últimas apuestas</h3>
+            <div id="recentBets"></div>
         </div>
 
-        <!-- Filtros -->
-        <div class="filters">
-            <button class="filter-btn active" data-filter="all">Todas</button>
-            <button class="filter-btn" data-filter="pending">Pendientes</button>
-            <button class="filter-btn" data-filter="win">Ganadas</button>
-            <button class="filter-btn" data-filter="loss">Perdidas</button>
+        <!-- Bets Page -->
+        <div id="betsPage" class="page">
+            <h2 style="margin-bottom: 1rem; color: var(--text);">Todas las apuestas</h2>
+            <div class="bet-list" id="allBets"></div>
         </div>
 
-        <!-- Lista de Apuestas -->
-        <div class="bet-list" id="betList">
-            <div class="empty-state">
-                <p>📊 No hay apuestas registradas</p>
-                <p style="font-size: 0.875rem; margin-top: 0.5rem;">Añade tu primera apuesta para comenzar</p>
+        <!-- Stats Page -->
+        <div id="statsPage" class="page">
+            <h2 style="margin-bottom: 1rem; color: var(--text);">Estadísticas</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Apostado</div>
+                    <div class="stat-value" id="statsStaked">€0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Yield</div>
+                    <div class="stat-value" id="statsYield">0%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Ganadas</div>
+                    <div class="stat-value stat-value positive" id="statsWins">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Perdidas</div>
+                    <div class="stat-value stat-value negative" id="statsLosses">0</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h3 class="chart-title" style="margin-bottom: 1rem;">Por Casa de Apuestas</h3>
+                <div id="houseStats"></div>
+            </div>
+
+            <div class="chart-container">
+                <h3 class="chart-title" style="margin-bottom: 1rem;">Por Deporte</h3>
+                <div id="sportStats"></div>
             </div>
         </div>
 
-        <!-- Botón Resetear -->
-        <button class="btn btn-danger" id="resetBtn" style="margin-top: 2rem;">🗑️ Resetear Todos los Datos</button>
+        <!-- More Page -->
+        <div id="morePage" class="page">
+            <h2 style="margin-bottom: 1rem; color: var(--text);">Configuración</h2>
+            
+            <div class="settings-section">
+                <div class="settings-item" onclick="resetBankroll()">
+                    <span class="settings-icon">💰</span>
+                    <div class="settings-label">Cambiar Banca Inicial</div>
+                    <span class="settings-value" id="currentBankroll">€0</span>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <div class="settings-item">
+                    <span class="settings-icon">📊</span>
+                    <div class="settings-label">Total de Apuestas</div>
+                    <span class="settings-value" id="totalBetsCount">0</span>
+                </div>
+                <div class="settings-item">
+                    <span class="settings-icon">💾</span>
+                    <div class="settings-label">Datos almacenados</div>
+                    <span class="settings-value">Local</span>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <div class="settings-item" style="color: var(--danger);" onclick="resetAllData()">
+                    <span class="settings-icon">🗑️</span>
+                    <div class="settings-label">Resetear Todos los Datos</div>
+                    <span style="font-size: 1.25rem;">→</span>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 2rem; color: var(--text-secondary); font-size: 0.875rem;">
+                <p>Control de Banca v1.0</p>
+                <p style="margin-top: 0.5rem;">Desarrollado con ❤️</p>
+            </div>
+        </div>
     </div>
 
-    <!-- Modal de Edición -->
-    <div class="modal" id="editModal">
+    <!-- Add/Edit Bet Modal -->
+    <div class="modal" id="betModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>✏️ Editar Apuesta</h2>
-                <button class="close-modal" onclick="closeEditModal()">×</button>
+                <h2 class="modal-title" id="modalTitle">Añadir Apuesta</h2>
+                <button class="close-modal" onclick="closeBetModal()">×</button>
             </div>
-            <form id="editForm">
+            
+            <form id="betForm">
                 <input type="hidden" id="editBetId">
-                <div class="form-group">
-                    <label>Deporte/Evento</label>
-                    <input type="text" id="editEventName" required>
-                </div>
+                
                 <div class="form-group">
                     <label>Tipo de Apuesta</label>
-                    <input type="text" id="editBetType" required>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Stake (€)</label>
-                        <input type="number" id="editStake" step="0.01" required>
+                    <div class="bet-type-selector">
+                        <div class="bet-type-option active" data-type="simple">
+                            <div class="icon">🎯</div>
+                            <div class="label">Simple</div>
+                        </div>
+                        <div class="bet-type-option" data-type="combined">
+                            <div class="icon">📊</div>
+                            <div class="label">Combinada</div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>Unidades</label>
-                        <input type="number" id="editUnits" step="0.1">
-                    </div>
                 </div>
+
                 <div class="form-group">
-                    <label>Cuota</label>
-                    <input type="number" id="editOdds" step="0.01" required>
-                </div>
-                <div class="form-group">
-                    <label>Estado</label>
-                    <select id="editStatus" required>
-                        <option value="pending">Pendiente</option>
-                        <option value="win">Ganada</option>
-                        <option value="loss">Perdida</option>
+                    <label>Casa de Apuestas</label>
+                    <select id="betHouse" required>
+                        <option value="">Seleccionar</option>
+                        <option value="Bet365">Bet365</option>
+                        <option value="Betfair">Betfair</option>
+                        <option value="Betway">Betway</option>
+                        <option value="888sport">888sport</option>
+                        <option value="William Hill">William Hill</option>
+                        <option value="Codere">Codere</option>
+                        <option value="Bwin">Bwin</option>
+                        <option value="Sportium">Sportium</option>
+                        <option value="Marathonbet">Marathonbet</option>
+                        <option value="Otro">Otro</option>
                     </select>
                 </div>
+
+                <div class="form-group">
+                    <label>Deporte</label>
+                    <select id="betSport" required>
+                        <option value="">Seleccionar</option>
+                        <option value="⚽ Fútbol">⚽ Fútbol</option>
+                        <option value="🏀 Baloncesto">🏀 Baloncesto</option>
+                        <option value="🎾 Tenis">🎾 Tenis</option>
+                        <option value="🏈 Fútbol Americano">🏈 Fútbol Americano</option>
+                        <option value="🏒 Hockey">🏒 Hockey</option>
+                        <option value="⚾ Béisbol">⚾ Béisbol</option>
+                        <option value="🥊 Boxeo">🥊 Boxeo</option>
+                        <option value="🏐 Voleibol">🏐 Voleibol</option>
+                        <option value="🏁 Automovilismo">🏁 Automovilismo</option>
+                        <option value="🎮 eSports">🎮 eSports</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Evento</label>
+                    <input type="text" id="betEvent" required placeholder="ej. Real Madrid vs Barcelona">
+                </div>
+
+                <div class="form-group">
+                    <label>Mercado</label>
+                    <input type="text" id="betMarket" required placeholder="ej. Gana Local, Más de 2.5">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Cuota</label>
+                        <input type="number" id="betOdds" step="0.01" required placeholder="1.85">
+                    </div>
+                    <div class="form-group">
+                        <label>Estado</label>
+                        <select id="betStatus" required>
+                            <option value="pending">Pendiente</option>
+                            <option value="win">Ganada</option>
+                            <option value="loss">Perdida</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Importe</label>
+                    <div class="stake-toggle">
+                        <button type="button" class="stake-option active" data-stake-type="currency">€</button>
+                        <button type="button" class="stake-option" data-stake-type="percent">%</button>
+                    </div>
+                    <input type="number" id="betStake" step="0.01" required placeholder="10.00">
+                </div>
+
                 <div class="form-group">
                     <label>Notas (opcional)</label>
-                    <textarea id="editNotes" rows="3"></textarea>
+                    <textarea id="betNotes" rows="3" placeholder="Análisis, motivo..."></textarea>
                 </div>
-                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancelar</button>
+
+                <button type="submit" class="btn btn-primary">Guardar Apuesta</button>
+                <button type="button" class="btn btn-secondary" onclick="closeBetModal()">Cancelar</button>
             </form>
         </div>
     </div>
 
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <button class="nav-item active" data-page="dashboardPage">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-label">Inicio</span>
+        </button>
+        <button class="nav-item" data-page="betsPage">
+            <span class="nav-icon">📝</span>
+            <span class="nav-label">Apuestas</span>
+        </button>
+        <button class="nav-item" onclick="openBetModal()">
+            <button class="fab-button">+</button>
+        </button>
+        <button class="nav-item" data-page="statsPage">
+            <span class="nav-icon">📊</span>
+            <span class="nav-label">Estadísticas</span>
+        </button>
+        <button class="nav-item" data-page="morePage">
+            <span class="nav-icon">⚙️</span>
+            <span class="nav-label">Más</span>
+        </button>
+    </nav>
+
     <script>
-        // Service Worker Registration
+        // Service Worker
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js')
-                .then(reg => console.log('Service Worker registrado'))
-                .catch(err => console.log('Error al registrar SW:', err));
+            navigator.serviceWorker.register('sw.js');
         }
 
-        // PWA Install Prompt
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            document.getElementById('installPrompt').classList.add('show');
-        });
-
-        document.getElementById('installBtn').addEventListener('click', async () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                deferredPrompt = null;
-                document.getElementById('installPrompt').classList.remove('show');
-            }
-        });
-
-        // Data Management
         class BankrollTracker {
             constructor() {
                 this.bets = this.loadBets();
                 this.initialBankroll = this.loadInitialBankroll();
-                this.currentFilter = 'all';
+                this.currentPage = 'dashboardPage';
+                this.chartPeriod = 30;
+                this.stakeType = 'currency';
+                this.betType = 'simple';
+                this.init();
+            }
+
+            init() {
                 this.checkInitialBankroll();
+                this.render();
+                this.setupEventListeners();
             }
 
             loadBets() {
@@ -685,10 +1007,11 @@
             }
 
             checkInitialBankroll() {
+                const setup = document.getElementById('initialBankrollSetup');
                 if (this.initialBankroll > 0) {
-                    document.getElementById('initialBankrollSection').style.display = 'none';
+                    setup.style.display = 'none';
                 } else {
-                    document.getElementById('initialBankrollSection').style.display = 'block';
+                    setup.style.display = 'block';
                 }
             }
 
@@ -699,46 +1022,28 @@
                 this.render();
             }
 
-            addBet(bet) {
-                bet.id = Date.now();
-                bet.date = new Date().toISOString();
-                this.bets.unshift(bet);
-                this.saveBets();
-                this.render();
-            }
-
-            updateBet(id, updatedBet) {
-                const index = this.bets.findIndex(b => b.id === id);
-                if (index !== -1) {
-                    this.bets[index] = { ...this.bets[index], ...updatedBet };
-                    this.saveBets();
-                    this.render();
-                }
-            }
-
-            deleteBet(id) {
-                if (confirm('¿Estás seguro de que quieres eliminar esta apuesta?')) {
-                    this.bets = this.bets.filter(b => b.id !== id);
-                    this.saveBets();
-                    this.render();
-                }
-            }
-
-            calculateStats() {
+            calculateStats(period = null) {
                 const stats = {
                     totalBets: this.bets.length,
-                    wins: this.bets.filter(b => b.status === 'win').length,
-                    losses: this.bets.filter(b => b.status === 'loss').length,
-                    pending: this.bets.filter(b => b.status === 'pending').length,
+                    wins: 0,
+                    losses: 0,
+                    pending: 0,
                     totalStaked: 0,
                     profit: 0,
                     history: []
                 };
 
+                let betsToAnalyze = this.bets;
+                
+                if (period) {
+                    const cutoffDate = new Date();
+                    cutoffDate.setDate(cutoffDate.getDate() - period);
+                    betsToAnalyze = this.bets.filter(b => new Date(b.date) >= cutoffDate);
+                }
+
                 let runningBankroll = this.initialBankroll;
                 stats.history.push({ date: 'Inicio', bankroll: runningBankroll });
 
-                // Ordenar apuestas por fecha para el gráfico
                 const sortedBets = [...this.bets].sort((a, b) => 
                     new Date(a.date) - new Date(b.date)
                 );
@@ -752,11 +1057,14 @@
                         stats.profit += winAmount;
                         runningBankroll += winAmount;
                         stats.totalStaked += stake;
+                        stats.wins++;
                     } else if (bet.status === 'loss') {
                         stats.profit -= stake;
                         runningBankroll -= stake;
                         stats.totalStaked += stake;
+                        stats.losses++;
                     } else {
+                        stats.pending++;
                         stats.totalStaked += stake;
                     }
 
@@ -776,21 +1084,22 @@
                 stats.roi = this.initialBankroll > 0 
                     ? ((stats.profit / this.initialBankroll) * 100).toFixed(1)
                     : 0;
+                stats.progression = this.initialBankroll > 0
+                    ? (((stats.currentBankroll - this.initialBankroll) / this.initialBankroll) * 100).toFixed(1)
+                    : 0;
+                stats.yield = stats.totalStaked > 0
+                    ? ((stats.profit / stats.totalStaked) * 100).toFixed(1)
+                    : 0;
 
                 return stats;
             }
 
-            drawChart(stats) {
-                if (stats.history.length <= 1) {
-                    document.getElementById('chartContainer').style.display = 'none';
-                    return;
-                }
+            drawChart(canvasId, stats) {
+                if (stats.history.length <= 1) return;
 
-                document.getElementById('chartContainer').style.display = 'block';
-                const canvas = document.getElementById('chartCanvas');
+                const canvas = document.getElementById(canvasId);
                 const ctx = canvas.getContext('2d');
                 
-                // Set canvas size
                 canvas.width = canvas.offsetWidth;
                 canvas.height = canvas.offsetHeight;
 
@@ -798,17 +1107,15 @@
                 const width = canvas.width - padding * 2;
                 const height = canvas.height - padding * 2;
 
-                // Clear canvas
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                // Find min and max values
                 const values = stats.history.map(h => h.bankroll);
                 const maxValue = Math.max(...values);
                 const minValue = Math.min(...values);
                 const range = maxValue - minValue || 1;
 
-                // Draw grid lines
-                ctx.strokeStyle = 'rgba(71, 85, 105, 0.3)';
+                // Grid
+                ctx.strokeStyle = 'rgba(71, 85, 105, 0.2)';
                 ctx.lineWidth = 1;
                 for (let i = 0; i <= 4; i++) {
                     const y = padding + (height / 4) * i;
@@ -818,8 +1125,12 @@
                     ctx.stroke();
                 }
 
-                // Draw line
-                ctx.strokeStyle = stats.profit >= 0 ? '#10b981' : '#ef4444';
+                // Line
+                const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                gradient.addColorStop(0, stats.profit >= 0 ? '#10b981' : '#ef4444');
+                gradient.addColorStop(1, stats.profit >= 0 ? '#059669' : '#dc2626');
+                
+                ctx.strokeStyle = gradient;
                 ctx.lineWidth = 3;
                 ctx.beginPath();
 
@@ -833,8 +1144,7 @@
                         ctx.lineTo(x, y);
                     }
 
-                    // Draw point
-                    ctx.fillStyle = stats.profit >= 0 ? '#10b981' : '#ef4444';
+                    ctx.fillStyle = gradient;
                     ctx.beginPath();
                     ctx.arc(x, y, 4, 0, Math.PI * 2);
                     ctx.fill();
@@ -842,12 +1152,11 @@
 
                 ctx.stroke();
 
-                // Draw labels
+                // Labels
                 ctx.fillStyle = '#cbd5e1';
-                ctx.font = '12px sans-serif';
+                ctx.font = '11px sans-serif';
                 ctx.textAlign = 'center';
 
-                // X-axis labels (show only some dates if too many)
                 const labelFrequency = Math.ceil(stats.history.length / 5);
                 stats.history.forEach((point, index) => {
                     if (index % labelFrequency === 0 || index === stats.history.length - 1) {
@@ -856,7 +1165,6 @@
                     }
                 });
 
-                // Y-axis labels
                 ctx.textAlign = 'right';
                 for (let i = 0; i <= 4; i++) {
                     const value = minValue + (range / 4) * i;
@@ -868,218 +1176,379 @@
             render() {
                 const stats = this.calculateStats();
                 
-                // Update Stats
-                document.getElementById('bankrollValue').textContent = `€${stats.currentBankroll.toFixed(2)}`;
-                document.getElementById('bankrollValue').className = 'stat-value ' + 
+                // Dashboard
+                document.getElementById('dashBankroll').textContent = `€${stats.currentBankroll.toFixed(2)}`;
+                document.getElementById('dashBankroll').className = 'stat-value ' + 
                     (stats.currentBankroll >= this.initialBankroll ? 'positive' : 'negative');
                 
-                const bankrollProgress = this.initialBankroll > 0 
+                const progress = this.initialBankroll > 0 
                     ? Math.min((stats.currentBankroll / (this.initialBankroll * 2)) * 100, 100)
                     : 0;
-                document.getElementById('bankrollProgress').style.width = bankrollProgress + '%';
+                document.getElementById('dashProgress').style.width = progress + '%';
                 
-                document.getElementById('profitValue').textContent = 
+                document.getElementById('dashProfit').textContent = 
                     `${stats.profit >= 0 ? '+' : ''}€${stats.profit.toFixed(2)}`;
-                document.getElementById('profitValue').className = 'stat-value ' + 
+                document.getElementById('dashProfit').className = 'stat-value ' + 
                     (stats.profit >= 0 ? 'positive' : 'negative');
                 
-                document.getElementById('roiValue').textContent = 
-                    `ROI: ${stats.roi >= 0 ? '+' : ''}${stats.roi}%`;
-                document.getElementById('roiValue').style.color = 
-                    stats.roi >= 0 ? 'var(--success)' : 'var(--danger)';
+                document.getElementById('dashROI').textContent = `ROI: ${stats.roi >= 0 ? '+' : ''}${stats.roi}%`;
+                document.getElementById('dashBets').textContent = stats.totalBets;
+                document.getElementById('dashWinRate').textContent = `% Aciertos: ${stats.winRate}%`;
+                document.getElementById('dashProgression').textContent = 
+                    `${stats.progression >= 0 ? '+' : ''}${stats.progression}%`;
+                document.getElementById('dashProgression').className = 'stat-value ' +
+                    (stats.progression >= 0 ? 'positive' : 'negative');
+
+                // Chart
+                this.drawChart('dashChart', stats);
+
+                // Recent bets
+                this.renderRecentBets();
                 
-                document.getElementById('totalBets').textContent = stats.totalBets;
-                document.getElementById('winRate').textContent = stats.winRate + '%';
+                // All bets
+                this.renderAllBets();
 
-                // Draw chart
-                this.drawChart(stats);
+                // Stats page
+                document.getElementById('statsStaked').textContent = `€${stats.totalStaked.toFixed(2)}`;
+                document.getElementById('statsYield').textContent = `${stats.yield >= 0 ? '+' : ''}${stats.yield}%`;
+                document.getElementById('statsWins').textContent = stats.wins;
+                document.getElementById('statsLosses').textContent = stats.losses;
 
-                // Render Bets
-                this.renderBets();
+                // More page
+                document.getElementById('currentBankroll').textContent = `€${this.initialBankroll.toFixed(2)}`;
+                document.getElementById('totalBetsCount').textContent = stats.totalBets;
+
+                this.renderHouseStats();
+                this.renderSportStats();
             }
 
-            renderBets() {
-                const betList = document.getElementById('betList');
-                const filteredBets = this.currentFilter === 'all' 
-                    ? this.bets 
-                    : this.bets.filter(b => b.status === this.currentFilter);
+            renderRecentBets() {
+                const container = document.getElementById('recentBets');
+                const recentBets = this.bets.slice(0, 3);
 
-                if (filteredBets.length === 0) {
-                    betList.innerHTML = `
-                        <div class="empty-state">
-                            <p>📊 No hay apuestas ${this.currentFilter === 'all' ? 'registradas' : 'en esta categoría'}</p>
-                        </div>
-                    `;
+                if (recentBets.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><div class="empty-icon">📊</div><p>No hay apuestas registradas</p></div>';
                     return;
                 }
 
-                betList.innerHTML = filteredBets.map(bet => {
-                    const date = new Date(bet.date).toLocaleDateString('es-ES', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric'
-                    });
-                    
-                    const potential = bet.status === 'win' 
-                        ? (parseFloat(bet.stake) * parseFloat(bet.odds)).toFixed(2)
-                        : bet.status === 'loss'
-                        ? '0.00'
-                        : (parseFloat(bet.stake) * parseFloat(bet.odds)).toFixed(2);
+                container.innerHTML = recentBets.map(bet => this.renderBetItem(bet)).join('');
+            }
 
-                    const statusText = {
-                        pending: 'Pendiente',
-                        win: 'Ganada',
-                        loss: 'Perdida'
-                    };
+            renderAllBets() {
+                const container = document.getElementById('allBets');
+                
+                if (this.bets.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><div class="empty-icon">📝</div><p>No hay apuestas registradas</p></div>';
+                    return;
+                }
 
-                    const unitsText = bet.units ? ` | 🎯 Unidades: ${parseFloat(bet.units).toFixed(1)}` : '';
+                container.innerHTML = this.bets.map(bet => this.renderBetItem(bet)).join('');
+            }
 
-                    return `
-                        <div class="bet-item ${bet.status}">
-                            <div class="bet-actions">
-                                <button class="action-btn" onclick="openEditModal(${bet.id})" title="Editar">✏️</button>
-                                <button class="action-btn delete-btn" onclick="tracker.deleteBet(${bet.id})" title="Eliminar">×</button>
-                            </div>
-                            <div class="bet-header">
-                                <div>
-                                    <div class="bet-title">${bet.eventName}</div>
-                                    <div style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.25rem;">
-                                        ${bet.betType}
-                                    </div>
-                                </div>
-                                <div class="bet-amount" style="color: ${bet.status === 'win' ? 'var(--success)' : bet.status === 'loss' ? 'var(--danger)' : 'var(--warning)'}">
-                                    €${potential}
-                                </div>
-                            </div>
-                            <div class="bet-details">
-                                💶 Stake: €${parseFloat(bet.stake).toFixed(2)} | 
-                                📊 Cuota: ${parseFloat(bet.odds).toFixed(2)}${unitsText} | 
-                                📅 ${date}
-                            </div>
-                            ${bet.notes ? `<div class="bet-details" style="margin-top: 0.5rem;">📝 ${bet.notes}</div>` : ''}
-                            <span class="bet-status ${bet.status}">${statusText[bet.status]}</span>
+            renderBetItem(bet) {
+                const date = new Date(bet.date).toLocaleDateString('es-ES', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                });
+                
+                const potential = bet.status === 'win' 
+                    ? (parseFloat(bet.stake) * parseFloat(bet.odds)).toFixed(2)
+                    : bet.status === 'loss'
+                    ? '0.00'
+                    : (parseFloat(bet.stake) * parseFloat(bet.odds)).toFixed(2);
+
+                const statusText = {
+                    pending: 'Pendiente',
+                    win: 'Ganada',
+                    loss: 'Perdida'
+                };
+
+                return `
+                    <div class="bet-item ${bet.status}">
+                        <div class="bet-actions">
+                            <button class="action-btn" onclick="tracker.editBet(${bet.id})">✏️</button>
+                            <button class="action-btn delete-btn" onclick="tracker.deleteBet(${bet.id})">×</button>
                         </div>
-                    `;
-                }).join('');
+                        <div class="bet-header">
+                            <div class="bet-info">
+                                <div class="bet-title">${bet.event || 'Evento'}</div>
+                                <div class="bet-meta">
+                                    <span class="bet-badge">${bet.sport || 'Deporte'}</span>
+                                    <span class="bet-badge">${bet.house || 'Casa'}</span>
+                                    <span>${bet.market || 'Mercado'}</span>
+                                </div>
+                            </div>
+                            <div class="bet-amount" style="color: ${bet.status === 'win' ? 'var(--success)' : bet.status === 'loss' ? 'var(--danger)' : 'var(--warning)'}">
+                                €${potential}
+                            </div>
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                            💶 ${bet.stake}€ | 📊 ${bet.odds} | 📅 ${date}
+                        </div>
+                        ${bet.notes ? `<div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem;">📝 ${bet.notes}</div>` : ''}
+                        <span class="bet-status ${bet.status}">${statusText[bet.status]}</span>
+                    </div>
+                `;
             }
 
-            setFilter(filter) {
-                this.currentFilter = filter;
-                this.renderBets();
+            renderHouseStats() {
+                const container = document.getElementById('houseStats');
+                const houseData = {};
+
+                this.bets.forEach(bet => {
+                    const house = bet.house || 'Desconocida';
+                    if (!houseData[house]) {
+                        houseData[house] = { bets: 0, profit: 0 };
+                    }
+                    houseData[house].bets++;
+                    
+                    const stake = parseFloat(bet.stake);
+                    const odds = parseFloat(bet.odds);
+                    if (bet.status === 'win') {
+                        houseData[house].profit += (stake * odds) - stake;
+                    } else if (bet.status === 'loss') {
+                        houseData[house].profit -= stake;
+                    }
+                });
+
+                const sortedHouses = Object.entries(houseData)
+                    .sort((a, b) => b[1].bets - a[1].bets)
+                    .slice(0, 5);
+
+                if (sortedHouses.length === 0) {
+                    container.innerHTML = '<div class="empty-state" style="padding: 2rem;">Sin datos</div>';
+                    return;
+                }
+
+                container.innerHTML = sortedHouses.map(([house, data]) => `
+                    <div style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--border);">
+                        <div>
+                            <div style="font-weight: 600;">${house}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">${data.bets} apuestas</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-weight: 600; color: ${data.profit >= 0 ? 'var(--success)' : 'var(--danger)'}">
+                                ${data.profit >= 0 ? '+' : ''}€${data.profit.toFixed(2)}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
             }
 
-            reset() {
-                if (confirm('¿Estás seguro de que quieres eliminar todos los datos? Esta acción no se puede deshacer.')) {
-                    localStorage.clear();
-                    this.bets = [];
-                    this.initialBankroll = 0;
-                    this.checkInitialBankroll();
+            renderSportStats() {
+                const container = document.getElementById('sportStats');
+                const sportData = {};
+
+                this.bets.forEach(bet => {
+                    const sport = bet.sport || 'Desconocido';
+                    if (!sportData[sport]) {
+                        sportData[sport] = { bets: 0, profit: 0 };
+                    }
+                    sportData[sport].bets++;
+                    
+                    const stake = parseFloat(bet.stake);
+                    const odds = parseFloat(bet.odds);
+                    if (bet.status === 'win') {
+                        sportData[sport].profit += (stake * odds) - stake;
+                    } else if (bet.status === 'loss') {
+                        sportData[sport].profit -= stake;
+                    }
+                });
+
+                const sortedSports = Object.entries(sportData)
+                    .sort((a, b) => b[1].bets - a[1].bets)
+                    .slice(0, 5);
+
+                if (sortedSports.length === 0) {
+                    container.innerHTML = '<div class="empty-state" style="padding: 2rem;">Sin datos</div>';
+                    return;
+                }
+
+                container.innerHTML = sortedSports.map(([sport, data]) => `
+                    <div style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--border);">
+                        <div>
+                            <div style="font-weight: 600;">${sport}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">${data.bets} apuestas</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-weight: 600; color: ${data.profit >= 0 ? 'var(--success)' : 'var(--danger)'}">
+                                ${data.profit >= 0 ? '+' : ''}€${data.profit.toFixed(2)}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            addBet(bet) {
+                bet.id = Date.now();
+                bet.date = new Date().toISOString();
+                this.bets.unshift(bet);
+                this.saveBets();
+                this.render();
+            }
+
+            editBet(id) {
+                const bet = this.bets.find(b => b.id === id);
+                if (!bet) return;
+
+                document.getElementById('modalTitle').textContent = 'Editar Apuesta';
+                document.getElementById('editBetId').value = bet.id;
+                document.getElementById('betHouse').value = bet.house || '';
+                document.getElementById('betSport').value = bet.sport || '';
+                document.getElementById('betEvent').value = bet.event || '';
+                document.getElementById('betMarket').value = bet.market || '';
+                document.getElementById('betOdds').value = bet.odds || '';
+                document.getElementById('betStatus').value = bet.status || 'pending';
+                document.getElementById('betStake').value = bet.stake || '';
+                document.getElementById('betNotes').value = bet.notes || '';
+
+                openBetModal();
+            }
+
+            updateBet(id, updatedBet) {
+                const index = this.bets.findIndex(b => b.id === id);
+                if (index !== -1) {
+                    this.bets[index] = { ...this.bets[index], ...updatedBet };
+                    this.saveBets();
                     this.render();
                 }
+            }
+
+            deleteBet(id) {
+                if (confirm('¿Eliminar esta apuesta?')) {
+                    this.bets = this.bets.filter(b => b.id !== id);
+                    this.saveBets();
+                    this.render();
+                }
+            }
+
+            setupEventListeners() {
+                // Navigation
+                document.querySelectorAll('.nav-item[data-page]').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const page = btn.dataset.page;
+                        this.navigateTo(page);
+                    });
+                });
+
+                // Initial bankroll
+                document.getElementById('setInitialBankroll').addEventListener('click', () => {
+                    const amount = document.getElementById('initialBankrollInput').value;
+                    if (amount && parseFloat(amount) > 0) {
+                        this.setInitialBankroll(amount);
+                    } else {
+                        alert('Introduce una cantidad válida');
+                    }
+                });
+
+                // Bet form
+                document.getElementById('betForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    
+                    const betId = document.getElementById('editBetId').value;
+                    const bet = {
+                        house: document.getElementById('betHouse').value,
+                        sport: document.getElementById('betSport').value,
+                        event: document.getElementById('betEvent').value,
+                        market: document.getElementById('betMarket').value,
+                        odds: document.getElementById('betOdds').value,
+                        status: document.getElementById('betStatus').value,
+                        stake: document.getElementById('betStake').value,
+                        notes: document.getElementById('betNotes').value,
+                        type: this.betType
+                    };
+
+                    if (betId) {
+                        this.updateBet(parseInt(betId), bet);
+                    } else {
+                        this.addBet(bet);
+                    }
+
+                    closeBetModal();
+                    e.target.reset();
+                });
+
+                // Bet type selector
+                document.querySelectorAll('.bet-type-option').forEach(opt => {
+                    opt.addEventListener('click', () => {
+                        document.querySelectorAll('.bet-type-option').forEach(o => o.classList.remove('active'));
+                        opt.classList.add('active');
+                        this.betType = opt.dataset.type;
+                    });
+                });
+
+                // Stake type toggle
+                document.querySelectorAll('.stake-option').forEach(opt => {
+                    opt.addEventListener('click', () => {
+                        document.querySelectorAll('.stake-option').forEach(o => o.classList.remove('active'));
+                        opt.classList.add('active');
+                        this.stakeType = opt.dataset.stakeType;
+                    });
+                });
+
+                // Time filters
+                document.querySelectorAll('.time-filter').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('.time-filter').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        this.chartPeriod = parseInt(btn.dataset.period);
+                        const stats = this.calculateStats(this.chartPeriod);
+                        this.drawChart('dashChart', stats);
+                    });
+                });
+            }
+
+            navigateTo(pageId) {
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                
+                document.getElementById(pageId).classList.add('active');
+                document.querySelector(`.nav-item[data-page="${pageId}"]`)?.classList.add('active');
+                
+                this.currentPage = pageId;
             }
         }
 
         const tracker = new BankrollTracker();
-        tracker.render();
 
-        // Initial Bankroll Setup
-        document.getElementById('setInitialBankroll').addEventListener('click', () => {
-            const amount = document.getElementById('initialBankrollInput').value;
+        function openBetModal() {
+            document.getElementById('modalTitle').textContent = 'Añadir Apuesta';
+            document.getElementById('editBetId').value = '';
+            document.getElementById('betForm').reset();
+            document.getElementById('betModal').classList.add('show');
+        }
+
+        function closeBetModal() {
+            document.getElementById('betModal').classList.remove('show');
+        }
+
+        function resetBankroll() {
+            const amount = prompt('Nueva banca inicial (€):', tracker.initialBankroll);
             if (amount && parseFloat(amount) > 0) {
                 tracker.setInitialBankroll(amount);
-            } else {
-                alert('Por favor, introduce una cantidad válida');
             }
-        });
-
-        // Form Submit
-        document.getElementById('betForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            if (tracker.initialBankroll === 0) {
-                alert('Por favor, establece primero tu banca inicial');
-                return;
-            }
-
-            const bet = {
-                eventName: document.getElementById('eventName').value,
-                betType: document.getElementById('betType').value,
-                stake: document.getElementById('stake').value,
-                odds: document.getElementById('odds').value,
-                status: document.getElementById('status').value,
-                units: document.getElementById('units').value || null,
-                notes: document.getElementById('notes').value
-            };
-
-            tracker.addBet(bet);
-            e.target.reset();
-        });
-
-        // Edit Modal Functions
-        function openEditModal(betId) {
-            const bet = tracker.bets.find(b => b.id === betId);
-            if (!bet) return;
-
-            document.getElementById('editBetId').value = bet.id;
-            document.getElementById('editEventName').value = bet.eventName;
-            document.getElementById('editBetType').value = bet.betType;
-            document.getElementById('editStake').value = bet.stake;
-            document.getElementById('editOdds').value = bet.odds;
-            document.getElementById('editStatus').value = bet.status;
-            document.getElementById('editUnits').value = bet.units || '';
-            document.getElementById('editNotes').value = bet.notes || '';
-
-            document.getElementById('editModal').classList.add('show');
         }
 
-        function closeEditModal() {
-            document.getElementById('editModal').classList.remove('show');
+        function resetAllData() {
+            if (confirm('¿Eliminar TODOS los datos? Esta acción no se puede deshacer.')) {
+                localStorage.clear();
+                location.reload();
+            }
         }
-
-        // Edit Form Submit
-        document.getElementById('editForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            const betId = parseInt(document.getElementById('editBetId').value);
-            const updatedBet = {
-                eventName: document.getElementById('editEventName').value,
-                betType: document.getElementById('editBetType').value,
-                stake: document.getElementById('editStake').value,
-                odds: document.getElementById('editOdds').value,
-                status: document.getElementById('editStatus').value,
-                units: document.getElementById('editUnits').value || null,
-                notes: document.getElementById('editNotes').value
-            };
-
-            tracker.updateBet(betId, updatedBet);
-            closeEditModal();
-        });
 
         // Close modal on outside click
-        document.getElementById('editModal').addEventListener('click', (e) => {
-            if (e.target.id === 'editModal') {
-                closeEditModal();
+        document.getElementById('betModal').addEventListener('click', (e) => {
+            if (e.target.id === 'betModal') {
+                closeBetModal();
             }
         });
 
-        // Filters
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                tracker.setFilter(btn.dataset.filter);
-            });
-        });
-
-        // Reset Button
-        document.getElementById('resetBtn').addEventListener('click', () => {
-            tracker.reset();
-        });
-
-        // Redraw chart on window resize
+        // Redraw chart on resize
         window.addEventListener('resize', () => {
             if (tracker.initialBankroll > 0) {
-                tracker.render();
+                const stats = tracker.calculateStats(tracker.chartPeriod);
+                tracker.drawChart('dashChart', stats);
             }
         });
     </script>
