@@ -972,9 +972,9 @@
 
                 <button type="submit" class="btn-auth" id="loginBtn">Iniciar Sesión</button>
 
-                <button type="button" class="btn-auth btn-google" id="googleLoginBtn">
-                    <span>🔐</span>
-                    <span>Google</span>
+                <button type="button" class="btn-auth btn-google" id="googleLoginBtn" style="background: white; color: black; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                    <img src="icon-google.png" alt="Google" style="width: 20px; height: 20px;">
+                    <span>Continuar con Google</span>
                 </button>
 
                 <div class="auth-divider">o</div>
@@ -2062,7 +2062,7 @@
             const error = document.getElementById('loginError');
 
             btn.disabled = true;
-            btn.innerHTML = '<span class="loading"></span>';
+            btn.innerHTML = '<img src="icon-google.png" alt="Google" style="width: 20px; height: 20px;"><span class="loading"></span>';
 
             const result = await authManager.loginWithGoogle();
 
@@ -2070,7 +2070,7 @@
                 error.textContent = result.message;
                 error.classList.add('show');
                 btn.disabled = false;
-                btn.innerHTML = '<span>🔐</span><span>Google</span>';
+                btn.innerHTML = '<img src="icon-google.png" alt="Google" style="width: 20px; height: 20px;"><span>Continuar con Google</span>';
             }
         });
 
