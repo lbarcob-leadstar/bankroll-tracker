@@ -311,6 +311,7 @@
             border-top: 1px solid var(--border);
             display: flex;
             justify-content: space-around;
+            align-items: center;
             padding: 0.5rem 0;
             z-index: 1000;
         }
@@ -352,11 +353,12 @@
             border: none;
             cursor: pointer;
             box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
-            margin-top: -28px;
             transition: all 0.3s;
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
+            margin: 0 auto;
         }
 
         .fab-button:hover {
@@ -1315,9 +1317,7 @@
                 <span class="nav-icon">📝</span>
                 <span class="nav-label">Apuestas</span>
             </button>
-            <button class="nav-item" onclick="openBetModal()">
-                <button class="fab-button">+</button>
-            </button>
+            <button class="fab-button" onclick="openBetModal()" title="Añadir apuesta">+</button>
             <button class="nav-item" data-page="statsPage">
                 <span class="nav-icon">📊</span>
                 <span class="nav-label">Estadísticas</span>
