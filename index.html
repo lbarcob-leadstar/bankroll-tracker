@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Control de Banca - Registra cada apuesta · Mide cada ventaja">
-    <meta name="theme-color" content="#1e293b">
+    <meta name="theme-color" content="#202A2D">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
     <style>
@@ -15,17 +15,17 @@
         }
 
         :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
+            --primary: #04A77D;
+            --primary-dark: #037357;
             --success: #10b981;
             --danger: #ef4444;
             --warning: #f59e0b;
-            --bg: #0f172a;
-            --bg-secondary: #1e293b;
-            --bg-tertiary: #334155;
+            --bg: #0F1215;
+            --bg-secondary: #202A2D;
+            --bg-tertiary: #2D3A3F;
             --text: #f1f5f9;
             --text-secondary: #cbd5e1;
-            --border: #475569;
+            --border: #3A4850;
         }
 
         body {
@@ -48,7 +48,7 @@
             align-items: center;
             justify-content: center;
             padding: 1rem;
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(79, 70, 229, 0.05));
+            background: linear-gradient(135deg, rgba(4, 167, 125, 0.1), rgba(3, 115, 87, 0.05));
         }
 
         .auth-card {
@@ -127,7 +127,7 @@
 
         .btn-auth:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+            box-shadow: 0 4px 12px rgba(4, 167, 125, 0.4);
         }
 
         .btn-auth:disabled {
@@ -346,12 +346,12 @@
             width: 56px;
             height: 56px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
+            background: linear-gradient(135deg, #5AED84, #47D470);
+            color: #202A2D;
             font-size: 2rem;
             border: none;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+            box-shadow: 0 4px 12px rgba(90, 237, 132, 0.4);
             transition: all 0.3s;
             display: flex;
             align-items: center;
@@ -689,13 +689,13 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            background: linear-gradient(135deg, #04A77D, #037357);
             color: white;
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+            box-shadow: 0 4px 12px rgba(4, 167, 125, 0.4);
         }
 
         .btn-secondary {
@@ -723,7 +723,7 @@
         }
 
         .bet-type-option.active {
-            background: rgba(99, 102, 241, 0.1);
+            background: rgba(4, 167, 125, 0.1);
             border-color: var(--primary);
             color: var(--primary);
         }
@@ -891,12 +891,12 @@
         }
 
         .initial-bankroll-card {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            background: linear-gradient(135deg, #04A77D, #037357);
             padding: 2rem;
             border-radius: 16px;
             text-align: center;
             margin-bottom: 2rem;
-            box-shadow: 0 8px 16px rgba(99, 102, 241, 0.3);
+            box-shadow: 0 8px 16px rgba(4, 167, 125, 0.3);
         }
 
         .initial-bankroll-card h2 {
@@ -935,7 +935,7 @@
             display: inline-block;
             width: 20px;
             height: 20px;
-            border: 3px solid rgba(99, 102, 241, 0.3);
+            border: 3px solid rgba(4, 167, 125, 0.3);
             border-radius: 50%;
             border-top-color: var(--primary);
             animation: spin 1s ease-in-out infinite;
@@ -951,8 +951,8 @@
     <div id="loginPage" class="auth-container" style="display: none;">
         <div class="auth-card">
             <div class="auth-header">
-                <h1 style="margin: 0 0 0.25rem 0;">Control de Banca</h1>
-                <p style="color: var(--text-secondary); font-size: 0.875rem; margin: 0.1rem 0;">por</p>
+                <h1 style="margin: 0 0 0.25rem 0;">Controla tu Banca</h1>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 0.5rem 0;">Registra cada apuesta · Mide cada ventaja</p>
                 <img src="icon-login.png" alt="MisCasasdeApuestas" style="width: 220px; margin: 0.1rem auto; display: block;">
                 <p>Inicia sesión para continuar</p>
             </div>
@@ -1057,13 +1057,8 @@
     <div id="appContent">
         <div class="header">
             <div class="header-left"></div>
-            <div class="header-center">
-                <img src="icon-192.png" alt="Control de Banca" class="header-icon" style="width: 30px; height: 30px;">
-                <p class="header-subtitle">Registra cada apuesta · Mide cada ventaja</p>
-            </div>
-            <div class="header-right">
-                <button class="logout-btn" id="logoutBtn" onclick="handleLogout()">Logout</button>
-            </div>
+            <div class="header-center"></div>
+            <div class="header-right"></div>
         </div>
 
         <div class="container">
@@ -1184,6 +1179,14 @@
                         <span class="settings-icon">💾</span>
                         <div class="settings-label">Datos almacenados</div>
                         <span class="settings-value">Local + Firebase</span>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <div class="settings-item" onclick="handleLogout()">
+                        <span class="settings-icon">🚪</span>
+                        <div class="settings-label">Cerrar Sesión</div>
+                        <span style="font-size: 1.25rem;">→</span>
                     </div>
                 </div>
 
@@ -1501,11 +1504,13 @@
 
                 // Line
                 const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-                gradient.addColorStop(0, stats.profit >= 0 ? '#10b981' : '#ef4444');
-                gradient.addColorStop(1, stats.profit >= 0 ? '#059669' : '#dc2626');
+                gradient.addColorStop(0, '#5AED84');
+                gradient.addColorStop(1, '#04A77D');
                 
                 ctx.strokeStyle = gradient;
-                ctx.lineWidth = 3;
+                ctx.lineWidth = 6;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
                 ctx.beginPath();
 
                 stats.history.forEach((point, index) => {
@@ -1517,14 +1522,20 @@
                     } else {
                         ctx.lineTo(x, y);
                     }
-
-                    ctx.fillStyle = gradient;
-                    ctx.beginPath();
-                    ctx.arc(x, y, 4, 0, Math.PI * 2);
-                    ctx.fill();
                 });
 
                 ctx.stroke();
+
+                // Points (small circles at line endpoints)
+                stats.history.forEach((point, index) => {
+                    const x = padding + (width / (stats.history.length - 1)) * index;
+                    const y = padding + height - ((point.bankroll - minValue) / range) * height;
+                    
+                    ctx.fillStyle = '#5AED84';
+                    ctx.beginPath();
+                    ctx.arc(x, y, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                });
 
                 // Labels
                 ctx.fillStyle = '#cbd5e1';
