@@ -1651,10 +1651,6 @@
 
                 return `
                     <div class="bet-item ${bet.status}">
-                        <div class="bet-actions">
-                            <button class="action-btn" onclick="tracker.editBet(${bet.id})">✏️</button>
-                            <button class="action-btn delete-btn" onclick="tracker.deleteBet(${bet.id})">×</button>
-                        </div>
                         <div class="bet-header">
                             <div class="bet-info">
                                 <div class="bet-title">${bet.event || 'Evento'}</div>
@@ -1664,8 +1660,14 @@
                                     <span>${bet.market || 'Mercado'}</span>
                                 </div>
                             </div>
-                            <div class="bet-amount" style="color: ${bet.status === 'win' ? 'var(--success)' : bet.status === 'loss' ? 'var(--danger)' : 'var(--warning)'}">
-                                €${potential}
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <div class="bet-amount" style="color: ${bet.status === 'win' ? 'var(--success)' : bet.status === 'loss' ? 'var(--danger)' : 'var(--warning)'}; white-space: nowrap;">
+                                    €${potential}
+                                </div>
+                                <div class="bet-actions" style="display: flex; gap: 0.5rem;">
+                                    <button class="action-btn" onclick="tracker.editBet(${bet.id})">✏️</button>
+                                    <button class="action-btn delete-btn" onclick="tracker.deleteBet(${bet.id})">×</button>
+                                </div>
                             </div>
                         </div>
                         <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem;">
@@ -1787,6 +1789,19 @@
                 document.getElementById('betStatus').value = bet.status || 'pending';
                 document.getElementById('betStake').value = bet.stake || '';
                 document.getElementById('betNotes').value = bet.notes || '';
+
+                // Restaurar tipo de apuesta
+                document.querySelectorAll('.bet-type-option').forEach(o => o.classList.remove('active'));
+                const betTypeOption = document.querySelector(`.bet-type-option[data-type="${bet.type || 'simple'}"]`);
+                if (betTypeOption) {
+                    betTypeOption.classList.add('active');
+                    this.betType = bet.type || 'simple';
+                }
+
+                // Restaurar tipo de stake (por defecto currency)
+                document.querySelectorAll('.stake-option').forEach(o => o.classList.remove('active'));
+                document.querySelector('.stake-option[data-stake-type="currency"]').classList.add('active');
+                this.stakeType = 'currency';
 
                 openBetModal();
             }
@@ -2090,7 +2105,6 @@
             if (confirm('¿Desconectar de la aplicación?')) {
                 const result = await authManager.logout();
                 if (result.success) {
-                    localStorage.clear();
                     location.reload();
                 }
             }
