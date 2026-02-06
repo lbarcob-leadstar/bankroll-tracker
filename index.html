@@ -1464,11 +1464,21 @@
             }
 
             setupFirestoreSync() {
-                // Escuchar cambios de autenticación para sincronizar datos
+                // Si ya hay usuario autenticado, cargar datos ahora
+                const currentUser = authManager.getCurrentUser();
+                if (currentUser) {
+                    setTimeout(async () => {
+                        await this.loadFromFirestore();
+                    }, 500);
+                }
+                
+                // Escuchar cambios de autenticación para futuras sesiones
                 auth.onAuthStateChanged(async (user) => {
                     if (user) {
                         // Cargar datos desde Firestore cuando el usuario inicia sesión
-                        await this.loadFromFirestore();
+                        setTimeout(async () => {
+                            await this.loadFromFirestore();
+                        }, 500);
                     }
                 });
             }
