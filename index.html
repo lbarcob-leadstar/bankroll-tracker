@@ -1660,20 +1660,18 @@
                                     <span>${bet.market || 'Mercado'}</span>
                                 </div>
                             </div>
-                            <div style="display: flex; align-items: center; gap: 1rem;">
-                                <div class="bet-amount" style="color: ${bet.status === 'win' ? 'var(--success)' : bet.status === 'loss' ? 'var(--danger)' : 'var(--warning)'}; white-space: nowrap;">
-                                    €${potential}
-                                </div>
-                                <div class="bet-actions" style="display: flex; gap: 0.5rem;">
-                                    <button class="action-btn" onclick="tracker.editBet(${bet.id})">✏️</button>
-                                    <button class="action-btn delete-btn" onclick="tracker.deleteBet(${bet.id})">×</button>
-                                </div>
+                            <div class="bet-amount" style="color: ${bet.status === 'win' ? 'var(--success)' : bet.status === 'loss' ? 'var(--danger)' : 'var(--warning)'}; white-space: nowrap;">
+                                €${potential}
                             </div>
                         </div>
                         <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem;">
                             💶 ${bet.stake}€ | 📊 ${bet.odds} | 📅 ${date}
                         </div>
                         ${bet.notes ? `<div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem;">📝 ${bet.notes}</div>` : ''}
+                        <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
+                            <button class="action-btn" onclick="tracker.editBet(${bet.id})">✏️ Editar</button>
+                            <button class="action-btn delete-btn" onclick="tracker.deleteBet(${bet.id})">× Eliminar</button>
+                        </div>
                         <span class="bet-status ${bet.status}">${statusText[bet.status]}</span>
                     </div>
                 `;
@@ -1913,9 +1911,23 @@
         const tracker = new BankrollTracker();
 
         function openBetModal() {
-            document.getElementById('modalTitle').textContent = 'Añadir Apuesta';
-            document.getElementById('editBetId').value = '';
-            document.getElementById('betForm').reset();
+            const editBetId = document.getElementById('editBetId').value;
+            
+            // Solo resetear si NO estamos editando
+            if (!editBetId) {
+                document.getElementById('modalTitle').textContent = 'Añadir Apuesta';
+                document.getElementById('betForm').reset();
+                
+                // Restaurar valores por defecto
+                document.querySelectorAll('.bet-type-option').forEach(o => o.classList.remove('active'));
+                document.querySelector('.bet-type-option[data-type="simple"]').classList.add('active');
+                tracker.betType = 'simple';
+                
+                document.querySelectorAll('.stake-option').forEach(o => o.classList.remove('active'));
+                document.querySelector('.stake-option[data-stake-type="currency"]').classList.add('active');
+                tracker.stakeType = 'currency';
+            }
+            
             document.getElementById('betModal').classList.add('show');
         }
 
