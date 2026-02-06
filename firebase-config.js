@@ -22,6 +22,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
+const db = firebase.firestore();
 
 // Configuración de persistencia (login permanece activo)
 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)

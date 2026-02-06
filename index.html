@@ -1334,6 +1334,7 @@
     <!-- Firebase SDK v8 (Compatible) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <!-- Firebase Config -->
     <script src="firebase-config.js"></script>
@@ -1356,7 +1357,9 @@
                 this.chartPeriod = 30;
                 this.stakeType = 'currency';
                 this.betType = 'simple';
+                this.syncing = false;
                 this.init();
+                this.setupFirestoreSync();
             }
 
             init() {
@@ -1372,6 +1375,11 @@
 
             saveBets() {
                 localStorage.setItem('bets', JSON.stringify(this.bets));
+                
+                // Sincronizar con Firestore si hay usuario autenticado
+                if (authManager.isAuthenticated() && !this.syncing) {
+                    this.saveToFirestore();
+                }
             }
 
             loadInitialBankroll() {
@@ -1381,6 +1389,88 @@
 
             saveInitialBankroll() {
                 localStorage.setItem('initialBankroll', this.initialBankroll.toString());
+                
+                // Sincronizar con Firestore
+                if (authManager.isAuthenticated() && !this.syncing) {
+                    this.saveInitialBankrollToFirestore();
+                }
+            }
+
+            // ===== FIRESTORE METHODS =====
+            async saveToFirestore() {
+                if (!authManager.isAuthenticated()) return;
+                
+                try {
+                    this.syncing = true;
+                    const userId = authManager.getCurrentUser().uid;
+                    const userDocRef = db.collection('users').doc(userId);
+                    
+                    await userDocRef.set({
+                        bets: this.bets,
+                        lastSync: new Date().toISOString()
+                    }, { merge: true });
+                } catch (error) {
+                    console.error('Error saving to Firestore:', error);
+                } finally {
+                    this.syncing = false;
+                }
+            }
+
+            async saveInitialBankrollToFirestore() {
+                if (!authManager.isAuthenticated()) return;
+                
+                try {
+                    this.syncing = true;
+                    const userId = authManager.getCurrentUser().uid;
+                    const userDocRef = db.collection('users').doc(userId);
+                    
+                    await userDocRef.set({
+                        initialBankroll: this.initialBankroll,
+                        lastSync: new Date().toISOString()
+                    }, { merge: true });
+                } catch (error) {
+                    console.error('Error saving bankroll to Firestore:', error);
+                } finally {
+                    this.syncing = false;
+                }
+            }
+
+            async loadFromFirestore() {
+                if (!authManager.isAuthenticated()) return;
+                
+                try {
+                    const userId = authManager.getCurrentUser().uid;
+                    const userDocRef = db.collection('users').doc(userId);
+                    const docSnapshot = await userDocRef.get();
+                    
+                    if (docSnapshot.exists) {
+                        const data = docSnapshot.data();
+                        
+                        if (data.bets && Array.isArray(data.bets)) {
+                            this.bets = data.bets;
+                            localStorage.setItem('bets', JSON.stringify(this.bets));
+                        }
+                        
+                        if (data.initialBankroll) {
+                            this.initialBankroll = data.initialBankroll;
+                            localStorage.setItem('initialBankroll', this.initialBankroll.toString());
+                        }
+                        
+                        this.render();
+                    }
+                } catch (error) {
+                    console.error('Error loading from Firestore:', error);
+                }
+            }
+
+            setupFirestoreSync() {
+                // Escuchar cambios de autenticación para sincronizar datos
+                auth.onAuthStateChanged(async (user) => {
+                    if (user) {
+                        // Cargar datos desde Firestore cuando el usuario inicia sesión
+                        await this.loadFromFirestore();
+                    }
+                });
             }
 
             checkInitialBankroll() {
