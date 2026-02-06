@@ -24,6 +24,10 @@ const app = firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
+// Make them globally accessible
+window.auth = auth;
+window.db = db;
+
 // Configuración de persistencia (login permanece activo)
 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
     .catch(error => console.log('Persist error:', error.code));

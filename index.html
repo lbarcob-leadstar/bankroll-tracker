@@ -1398,19 +1398,28 @@
 
             // ===== FIRESTORE METHODS =====
             async saveToFirestore() {
-                if (!authManager.isAuthenticated()) return;
+                if (!authManager.isAuthenticated()) {
+                    console.log('User not authenticated, skipping Firestore save');
+                    return;
+                }
                 
                 try {
                     this.syncing = true;
                     const userId = authManager.getCurrentUser().uid;
                     const userDocRef = db.collection('users').doc(userId);
                     
+                    console.log('Saving to Firestore for user:', userId);
+                    console.log('Bets to save:', this.bets.length);
+                    
                     await userDocRef.set({
                         bets: this.bets,
                         lastSync: new Date().toISOString()
                     }, { merge: true });
+                    
+                    console.log('Successfully saved to Firestore');
                 } catch (error) {
                     console.error('Error saving to Firestore:', error);
+                    alert('Error sincronizando con Firestore: ' + error.message);
                 } finally {
                     this.syncing = false;
                 }
@@ -1436,27 +1445,37 @@
             }
 
             async loadFromFirestore() {
-                if (!authManager.isAuthenticated()) return;
+                if (!authManager.isAuthenticated()) {
+                    console.log('User not authenticated, skipping Firestore load');
+                    return;
+                }
                 
                 try {
                     const userId = authManager.getCurrentUser().uid;
                     const userDocRef = db.collection('users').doc(userId);
+                    
+                    console.log('Loading data from Firestore for user:', userId);
                     const docSnapshot = await userDocRef.get();
                     
                     if (docSnapshot.exists) {
                         const data = docSnapshot.data();
+                        console.log('Firestore data found:', data);
                         
                         if (data.bets && Array.isArray(data.bets)) {
+                            console.log('Loading', data.bets.length, 'bets from Firestore');
                             this.bets = data.bets;
                             localStorage.setItem('bets', JSON.stringify(this.bets));
                         }
                         
                         if (data.initialBankroll) {
+                            console.log('Loading bankroll from Firestore:', data.initialBankroll);
                             this.initialBankroll = data.initialBankroll;
                             localStorage.setItem('initialBankroll', this.initialBankroll.toString());
                         }
                         
                         this.render();
+                    } else {
+                        console.log('No data found in Firestore for this user');
                     }
                 } catch (error) {
                     console.error('Error loading from Firestore:', error);
