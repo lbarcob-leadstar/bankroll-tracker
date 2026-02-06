@@ -1660,18 +1660,24 @@
                                     <span>${bet.market || 'Mercado'}</span>
                                 </div>
                             </div>
-                            <div class="bet-amount" style="color: ${bet.status === 'win' ? 'var(--success)' : bet.status === 'loss' ? 'var(--danger)' : 'var(--warning)'}; white-space: nowrap;">
-                                €${potential}
+                            <div style="display: flex; align-items: center; gap: 1.5rem;">
+                                <div class="bet-amount" style="color: ${bet.status === 'win' ? 'var(--success)' : bet.status === 'loss' ? 'var(--danger)' : 'var(--warning)'}; white-space: nowrap;">
+                                    €${potential}
+                                </div>
+                                <div class="bet-actions" style="display: flex; gap: 0.25rem; flex-shrink: 0;">
+                                    <button class="action-btn" onclick="tracker.editBet(${bet.id})">✏️</button>
+                                    <button class="action-btn delete-btn" onclick="tracker.deleteBet(${bet.id})">×</button>
+                                </div>
                             </div>
                         </div>
                         <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem;">
                             💶 ${bet.stake}€ | 📊 ${bet.odds} | 📅 ${date}
                         </div>
                         ${bet.notes ? `<div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem;">📝 ${bet.notes}</div>` : ''}
-                        <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
-                            <button class="action-btn" onclick="tracker.editBet(${bet.id})">✏️ Editar</button>
-                            <button class="action-btn delete-btn" onclick="tracker.deleteBet(${bet.id})">× Eliminar</button>
-                        </div>
+                            <div class="bet-actions" style="display: flex; gap: 0.25rem; flex-shrink: 0;">
+                                    <button class="action-btn" onclick="tracker.editBet(${bet.id})">✏️</button>
+                                    <button class="action-btn delete-btn" onclick="tracker.deleteBet(${bet.id})">×</button>
+                                </div>
                         <span class="bet-status ${bet.status}">${statusText[bet.status]}</span>
                     </div>
                 `;
