@@ -1,0 +1,53 @@
+{
+  "manifest_version": 3,
+  "name": "Mi Control de Apuestas",
+  "version": "1.1",
+  "description": "Registra apuestas rápidamente desde cualquier sitio web",
+  "author": "Control de Banca",
+  "homepage_url": "https://bankroll-tracker.com",
+  "minimum_chrome_version": "88",
+  "permissions": [
+    "storage",
+    "sidePanel",
+    "activeTab",
+    "tabs"
+  ],
+  "host_permissions": [
+    "<all_urls>",
+    "https://identitytoolkit.googleapis.com/*",
+    "https://firestore.googleapis.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content-script.js"],
+      "run_at": "document_start",
+      "exclude_matches": ["https://chrome.google.com/*", "https://chromewebstore.google.com/*"]
+    }
+  ],
+  "action": {
+    "default_title": "Mi Control de Apuestas",
+    "default_popup": "sidebar.html",
+    "default_icons": {
+      "16": "images/icon-16.png",
+      "32": "images/icon-32.png",
+      "48": "images/icon-48.png",
+      "128": "images/icon-128.png",
+      "192": "images/icon-192.png"
+    }
+  },
+  "side_panel": {
+    "default_path": "sidebar.html",
+    "default_title": "Mi Control de Apuestas"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "icons": {
+    "16": "images/icon-16.png",
+    "32": "images/icon-32.png",
+    "48": "images/icon-48.png",
+    "128": "images/icon-128.png",
+    "192": "images/icon-192.png"
+  }
+}

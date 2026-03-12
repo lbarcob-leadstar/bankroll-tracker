@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preview - PWA Install Modal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #04A77D;
+            --primary-dark: #037357;
+            --bg: #0F1215;
+            --bg-secondary: #202A2D;
+            --bg-tertiary: #2D3A3F;
+            --text: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --border: #334155;
+            --danger: #ef4444;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            padding: 1rem 0.5rem;
+            min-height: 100vh;
+        }
+
+        .preview-container {
+            max-width: 400px;
+            margin: 2rem auto;
+        }
+
+        .preview-header {
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .preview-header h1 {
+            font-size: 1rem;
+            margin-bottom: 0.3rem;
+            color: var(--text);
+        }
+
+        .preview-header p {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+        }
+
+        .device-buttons {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .device-buttons button {
+            padding: 0.5rem 0.75rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+
+        .device-buttons button.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .device-buttons button:not(.active) {
+            background: var(--bg-secondary);
+            color: var(--text);
+            border: 1px solid var(--bg-tertiary);
+        }
+
+        .mobile-frame {
+            background: #1a1a1a;
+            border: 8px solid #1a1a1a;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            position: relative;
+            max-height: 600px;
+        }
+
+        .mobile-frame::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 24px;
+            background: #1a1a1a;
+            border-radius: 0 0 20px 20px;
+            z-index: 10;
+        }
+
+        .mobile-content {
+            flex: 1;
+            overflow-y: auto;
+            padding-top: 8px;
+            background: var(--bg);
+            display: block;
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            width: 100%;
+        }
+
+        .preview-section {
+            background: transparent;
+            border: none;
+            border-radius: 0;
+            padding: 0;
+            margin-bottom: 0;
+        }
+
+        .preview-section h3 {
+            display: none;
+        }
+
+        .modal {
+            display: block;
+            position: relative;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 9999;
+            padding: 0.5rem;
+            min-height: auto;
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--bg-tertiary);
+            border-radius: 12px;
+            max-width: 100%;
+            width: 100%;
+            max-height: none;
+            overflow: visible;
+            box-shadow: none;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--bg-tertiary);
+        }
+
+        .modal-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+
+        .close-modal:hover {
+            background: var(--bg-tertiary);
+            color: var(--text);
+        }
+
+        .modal-content > div {
+            padding: 1rem;
+        }
+
+        .modal-content p {
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+            text-align: center;
+            font-size: 0.85rem;
+        }
+
+        .modal-content h3 {
+            color: var(--text);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .modal-content ol {
+            color: var(--text-secondary);
+            line-height: 1.5;
+            padding-left: 1.25rem;
+            font-size: 0.8rem;
+        }
+
+        .modal-content ol li {
+            margin-bottom: 0.3rem;
+        }
+
+        .modal-content ol strong {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .modal-content ol li:last-child {
+            margin-bottom: 0;
+        }
+
+        .modal-content div:last-child {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--bg-tertiary);
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.5rem 0.75rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text);
+            border: none;
+        }
+
+        .btn-secondary:hover {
+            background: #3a4145;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .device-indicator {
+            display: none;
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            width: 100%;
+            height: 100%;
+        }
+
+        .preview-section {
+            background: transparent;
+            border: none;
+            border-radius: 0;
+            padding: 0;
+            margin-bottom: 0;
+        }
+
+        .preview-section h3 {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="preview-container">
+        <div class="preview-header">
+            <h1>📱 PWA Install Modal</h1>
+            <p>Vista previa del modal en dispositivo móvil</p>
+        </div>
+
+        <div class="device-buttons">
+            <button class="active" onclick="showDevice('ios')">📱 iOS</button>
+            <button onclick="showDevice('android')">🤖 Android</button>
+        </div>
+
+        <div class="mobile-frame">
+            <div class="mobile-content">
+                <!-- iOS Preview -->
+                <div id="ios-preview" class="preview-grid">
+                    <div class="modal">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h2 class="modal-title">📱 Instala nuestra app</h2>
+                                <button class="close-modal">×</button>
+                            </div>
+
+                            <div>
+                                <p>Accede más rápido y con mejor experiencia</p>
+
+                                <h3>📲 En tu iPhone:</h3>
+                                <ol>
+                                    <li>Toca el botón <strong>Compartir</strong> (cuadrado con flecha)</li>
+                                    <li>Desplázate y toca <strong>Añadir a pantalla de inicio</strong></li>
+                                    <li>Toca <strong>Añadir</strong> en la esquina superior derecha</li>
+                                    <li>¡Listo! Ya tendrás la app en tu pantalla de inicio</li>
+                                </ol>
+
+                                <div>
+                                    <button class="btn btn-secondary">Más tarde</button>
+                                    <button class="btn btn-primary">Entendido</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Android Preview -->
+                <div id="android-preview" class="preview-grid" style="display: none;">
+                    <div class="modal">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h2 class="modal-title">📱 Instala nuestra app</h2>
+                                <button class="close-modal">×</button>
+                            </div>
+
+                            <div>
+                                <p>Accede más rápido y con mejor experiencia</p>
+
+                                <h3>📲 En tu Android:</h3>
+                                <ol>
+                                    <li>Toca el menú (⋮) en la esquina superior derecha</li>
+                                    <li>Selecciona <strong>Instalar aplicación</strong></li>
+                                    <li>Confirma tocando <strong>Instalar</strong></li>
+                                    <li>¡Listo! La app está en tu pantalla de inicio</li>
+                                </ol>
+
+                                <div>
+                                    <button class="btn btn-secondary">Más tarde</button>
+                                    <button class="btn btn-primary">Entendido</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showDevice(device) {
+            const iosPreview = document.getElementById('ios-preview');
+            const androidPreview = document.getElementById('android-preview');
+            const buttons = document.querySelectorAll('.device-buttons button');
+
+            if (device === 'ios') {
+                iosPreview.style.display = 'grid';
+                androidPreview.style.display = 'none';
+                buttons[0].classList.add('active');
+                buttons[1].classList.remove('active');
+            } else {
+                iosPreview.style.display = 'none';
+                androidPreview.style.display = 'grid';
+                buttons[0].classList.remove('active');
+                buttons[1].classList.add('active');
+            }
+        }
+    </script>
+</body>
+</html>

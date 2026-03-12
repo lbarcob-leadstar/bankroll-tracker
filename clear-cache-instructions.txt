@@ -1,0 +1,22 @@
+=== LIMPIAR CACHÉ ===
+
+OPCIÓN 1 - Más rápido (desde DevTools):
+1. Abre el navegador donde está Live Server
+2. Presiona F12 (DevTools)
+3. Vete a "Application" tab
+4. Izquierda: Expande "Storage"
+5. Click en cada uno y borra:
+   - IndexedDB
+   - Cache Storage
+   - Local Storage
+6. Recarga con Cmd+Shift+R (Mac) o Ctrl+Shift+R (Windows)
+
+OPCIÓN 2 - Crear servidor nuevo:
+1. Termina Live Server (si está corriendo)
+2. En VS Code: Click derecho en index.html → "Open with Live Server"
+3. Debería abrirse en puerto diferente
+
+OPCIÓN 3 - Modo privado:
+1. Abre una ventana privada/incógnita
+2. Copia la URL de Live Server (ej: http://localhost:5500)
+3. Pega en ventana privada

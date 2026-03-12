@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PWA Install Modal - Preview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0F1215;
+            color: #f1f5f9;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #cbd5e1;
+            font-size: 0.9rem;
+        }
+
+        .device-switch {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .device-switch button {
+            padding: 0.6rem 1.2rem;
+            border: 1px solid #2D3A3F;
+            background: #202A2D;
+            color: #f1f5f9;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .device-switch button.active {
+            background: #04A77D;
+            border-color: #04A77D;
+            color: white;
+        }
+
+        .device-switch button:hover:not(.active) {
+            background: #2D3A3F;
+        }
+
+        /* Mobile Frame */
+        .phone {
+            background: #000;
+            border: 10px solid #1a1a1a;
+            border-radius: 40px;
+            overflow: hidden;
+            aspect-ratio: 9 / 16;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            position: relative;
+        }
+
+        /* Notch */
+        .phone::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 30px;
+            background: #000;
+            border-radius: 0 0 20px 20px;
+            z-index: 10;
+        }
+
+        .phone-content {
+            flex: 1;
+            background: #0F1215;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            padding-top: 10px;
+        }
+
+        /* Modal overlay */
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            z-index: 100;
+        }
+
+        .modal {
+            background: #202A2D;
+            border-radius: 20px 20px 0 0;
+            border: 1px solid #2D3A3F;
+            border-bottom: none;
+            padding: 1.5rem;
+            animation: slideUp 0.3s ease-out;
+            max-height: 80%;
+            overflow-y: auto;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #cbd5e1;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .close-btn:hover {
+            background: #2D3A3F;
+            color: #f1f5f9;
+        }
+
+        .modal-body {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-body p {
+            color: #cbd5e1;
+            text-align: center;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .modal-body h3 {
+            color: #f1f5f9;
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .modal-body ol {
+            color: #cbd5e1;
+            padding-left: 1.5rem;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        .modal-body ol li {
+            margin-bottom: 0.4rem;
+        }
+
+        .modal-body strong {
+            color: #f1f5f9;
+            font-weight: 600;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 0.75rem;
+            padding-top: 1rem;
+            border-top: 1px solid #2D3A3F;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary {
+            background: #2D3A3F;
+            color: #f1f5f9;
+            border: 1px solid transparent;
+        }
+
+        .btn-secondary:hover {
+            background: #3a4145;
+        }
+
+        .btn-primary {
+            background: #04A77D;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #037357;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📱 PWA Install Modal</h1>
+            <p>Vista previa en formato móvil</p>
+        </div>
+
+        <div class="device-switch">
+            <button class="active" onclick="switchDevice('ios')">📱 iOS</button>
+            <button onclick="switchDevice('android')">🤖 Android</button>
+        </div>
+
+        <div class="phone">
+            <div class="phone-content">
+                <!-- Modal iOS -->
+                <div id="ios-modal" class="modal-overlay">
+                    <div class="modal">
+                        <div class="modal-header">
+                            <h2 class="modal-title">📱 Instala nuestra app</h2>
+                            <button class="close-btn">×</button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Accede más rápido y con mejor experiencia</p>
+                            <h3>📲 En tu iPhone:</h3>
+                            <ol>
+                                <li>Toca el botón <strong>Compartir</strong> (cuadrado con flecha)</li>
+                                <li>Desplázate y toca <strong>Añadir a pantalla de inicio</strong></li>
+                                <li>Toca <strong>Añadir</strong> en la esquina superior derecha</li>
+                                <li>¡Listo! Ya tendrás la app en tu pantalla de inicio</li>
+                            </ol>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-secondary">Más tarde</button>
+                            <button class="btn btn-primary">Entendido</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Android -->
+                <div id="android-modal" class="modal-overlay hidden">
+                    <div class="modal">
+                        <div class="modal-header">
+                            <h2 class="modal-title">📱 Instala nuestra app</h2>
+                            <button class="close-btn">×</button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Accede más rápido y con mejor experiencia</p>
+                            <h3>📲 En tu Android:</h3>
+                            <ol>
+                                <li>Toca el menú <strong>(⋮)</strong> en la esquina superior derecha</li>
+                                <li>Selecciona <strong>Instalar aplicación</strong></li>
+                                <li>Confirma tocando <strong>Instalar</strong></li>
+                                <li>¡Listo! La app está en tu pantalla de inicio</li>
+                            </ol>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-secondary">Más tarde</button>
+                            <button class="btn btn-primary">Entendido</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchDevice(type) {
+            const iosModal = document.getElementById('ios-modal');
+            const androidModal = document.getElementById('android-modal');
+            const buttons = document.querySelectorAll('.device-switch button');
+
+            if (type === 'ios') {
+                iosModal.classList.remove('hidden');
+                androidModal.classList.add('hidden');
+                buttons[0].classList.add('active');
+                buttons[1].classList.remove('active');
+            } else {
+                iosModal.classList.add('hidden');
+                androidModal.classList.remove('hidden');
+                buttons[0].classList.remove('active');
+                buttons[1].classList.add('active');
+            }
+        }
+    </script>
+</body>
+</html>

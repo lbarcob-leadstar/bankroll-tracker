@@ -16,9 +16,6 @@ class AuthManager {
         try {
             const userCredential = await auth.createUserWithEmailAndPassword(email, password);
             this.user = userCredential.user;
-            // Guardar UID para que la extensión pueda sincronizarse
-            localStorage.setItem('firestore_user_uid', this.user.uid);
-            localStorage.setItem('firestore_user_email', email);
             // Guardar que es primer registro para mostrar PWA install prompt
             localStorage.setItem('isFirstRegistration', 'true');
             return { success: true, user: this.user };
@@ -34,9 +31,6 @@ class AuthManager {
         try {
             const userCredential = await auth.signInWithEmailAndPassword(email, password);
             this.user = userCredential.user;
-            // Guardar UID para que la extensión pueda sincronizarse
-            localStorage.setItem('firestore_user_uid', this.user.uid);
-            localStorage.setItem('firestore_user_email', email);
             return { success: true, user: this.user };
         } catch (error) {
             return this.handleAuthError(error);
@@ -51,9 +45,6 @@ class AuthManager {
             const provider = new firebase.auth.GoogleAuthProvider();
             const userCredential = await auth.signInWithPopup(provider);
             this.user = userCredential.user;
-            // Guardar UID para que la extensión pueda sincronizarse
-            localStorage.setItem('firestore_user_uid', this.user.uid);
-            localStorage.setItem('firestore_user_email', this.user.email);
             return { success: true, user: this.user };
         } catch (error) {
             // Si el popup se rechaza, intenta con redirect
@@ -111,19 +102,14 @@ class AuthManager {
     handleAuthError(error) {
         const errorMessages = {
             'auth/email-already-in-use': 'Este email ya está registrado',
-            'auth/invalid-email': 'Email inválido o formato incorrecto',
+            'auth/invalid-email': 'Email inválido',
             'auth/weak-password': 'Contraseña débil (mínimo 6 caracteres)',
-            'auth/user-not-found': 'Cuenta no encontrada',
+            'auth/user-not-found': 'Usuario no encontrado',
             'auth/wrong-password': 'Contraseña incorrecta',
-            'auth/too-many-login-attempts': 'Demasiados intentos. Intenta en unos minutos',
-            'auth/invalid-password': 'Contraseña inválida',
-            'auth/network-request-failed': 'Error de conexión. Revisa tu internet',
-            'auth/operation-not-allowed': 'Esta operación no está permitida',
-            'auth/account-exists-with-different-credential': 'Esta cuenta ya existe',
+            'auth/too-many-login-attempts': 'Demasiados intentos de login. Intenta más tarde',
         };
 
-        // Si hay un mensaje personalizado, usarlo; si no, muestra genérico
-        const message = errorMessages[error.code] || 'No pudimos procesar tu solicitud. Intenta de nuevo';
+        const message = errorMessages[error.code] || error.message || 'Error de autenticación';
         return { success: false, message, code: error.code };
     }
 

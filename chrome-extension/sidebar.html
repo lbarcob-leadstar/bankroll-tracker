@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Añadir Apuesta</title>
+    <link rel="icon" href="images/icon-extension.png">
+    <link rel="stylesheet" href="sidebar-styles.css">
+</head>
+<body>
+    <!-- PANTALLA DE LOGIN -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-container">
+            <img src="images/icon-extension.png" alt="Logo" class="login-logo">
+            <h1>Mi Control de Apuestas</h1>
+            <p class="login-subtitle">Registra y gestiona tus apuestas</p>
+            
+            <form id="loginForm" class="login-form">
+                <div class="login-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" name="email" placeholder="tu@email.com" required>
+                </div>
+                <div class="login-group">
+                    <label for="loginPassword">Contraseña</label>
+                    <input type="password" id="loginPassword" name="password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="login-btn">Iniciar Sesión</button>
+            </form>
+            
+            <div id="loginMessage" class="login-message"></div>
+        </div>
+    </div>
+
+    <!-- PANTALLA PRINCIPAL DE LA EXTENSIÓN -->
+    <div id="mainScreen" class="main-screen" style="display: none;">
+        <div class="container">
+            <div class="header">
+                <img src="images/icon-extension.png" alt="Logo" class="logo">
+                <div class="sync-status" id="syncStatus">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Listo</span>
+                </div>
+                <button id="logoutBtn" class="logout-btn" title="Cerrar sesión">Cerrar sesión</button>
+            </div>
+
+            <div class="content-wrapper">
+            <div class="form-section">
+                <form id="betForm">
+                    <!-- Tipo de Apuesta -->
+                    <div class="form-group">
+                        <label>Tipo de Apuesta</label>
+                        <div class="bet-type-selector">
+                            <div class="bet-type-option active" data-type="simple">
+                                <div class="icon">🎯</div>
+                                <div class="label">Simple</div>
+                            </div>
+                            <div class="bet-type-option" data-type="combined">
+                                <div class="icon">📊</div>
+                                <div class="label">Combinada</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Casa de Apuestas -->
+                    <div class="form-group">
+                        <label for="house">Casa de Apuestas</label>
+                        <select id="house" name="house" required>
+                            <option value="">Seleccionar</option>
+                            <option value="Bet365">Bet365</option>
+                            <option value="Sportium">Sportium</option>
+                            <option value="Paf">Paf</option>
+                            <option value="Betway">Betway</option>
+                            <option value="William Hill">William Hill</option>
+                            <option value="888sport">888sport</option>
+                            <option value="Bwin">Bwin</option>
+                            <option value="Luckia">Luckia</option>
+                            <option value="Codere">Codere</option>
+                            <option value="Betfair">Betfair</option>
+                            <option value="Marca Apuestas">Marca Apuestas</option>
+                            <option value="Betsson">Betsson</option>
+                            <option value="Leovegas">Leovegas</option>
+                            <option value="Marathonbet">Marathonbet</option>
+                            <option value="Casumo">Casumo</option>
+                            <option value="Versus">Versus</option>
+                            <option value="Kirolbet">Kirolbet</option>
+                            <option value="Interwetten">Interwetten</option>
+                            <option value="Retabet">Retabet</option>
+                            <option value="Paston">Paston</option>
+                            <option value="Mondobets">Mondobets</option>
+                            <option value="Ebingo">Ebingo</option>
+                            <option value="Juegging">Juegging</option>
+                            <option value="PokerStars Sports">PokerStars Sports</option>
+                            <option value="YaassCasino">YaassCasino</option>
+                        </select>
+                    </div>
+
+                    <!-- Deporte -->
+                    <div class="form-group">
+                        <label for="sport">Deporte</label>
+                        <select id="sport" name="sport" required>
+                            <option value="">Selecciona un deporte</option>
+                            <option value="⚽ Fútbol">⚽ Fútbol</option>
+                            <option value="🏀 Baloncesto">🏀 Baloncesto</option>
+                            <option value="🎾 Tenis">🎾 Tenis</option>
+                            <option value="⚾ Béisbol">⚾ Béisbol</option>
+                            <option value="🏈 Fútbol Americano">🏈 Fútbol Americano</option>
+                            <option value="🏒 Hockey sobre Hielo">🏒 Hockey sobre Hielo</option>
+                            <option value="⛳ Golf">⛳ Golf</option>
+                            <option value="🥊 Boxeo">🥊 Boxeo</option>
+                            <option value="🤼 Artes Marciales Mixtas">🤼 Artes Marciales Mixtas</option>
+                            <option value="🏎️ Fórmula 1">🏎️ Fórmula 1</option>
+                            <option value="🏍️ Motociclismo">🏍️ Motociclismo</option>
+                            <option value="🚴 Ciclismo">🚴 Ciclismo</option>
+                            <option value="🏃 Atletismo">🏃 Atletismo</option>
+                            <option value="🏉 Rugby">🏉 Rugby</option>
+                            <option value="🏏 Cricket">🏏 Cricket</option>
+                            <option value="🤝 Balonmano">🤝 Balonmano</option>
+                            <option value="🏐 Voleibol">🏐 Voleibol</option>
+                            <option value="🏓 Tenis de Mesa">🏓 Tenis de Mesa</option>
+                            <option value="🏸 Bádminton">🏸 Bádminton</option>
+                            <option value="🎱 Snooker">🎱 Snooker</option>
+                            <option value="🎯 Dardos">🎯 Dardos</option>
+                            <option value="🎮 Esports">🎮 Esports</option>
+                            <option value="🐎 Caballos">🐎 Caballos</option>
+                            <option value="🐕 Galgos">🐕 Galgos</option>
+                            <option value="🌊 Waterpolo">🌊 Waterpolo</option>
+                            <option value="🏊 Natación">🏊 Natación</option>
+                            <option value="🏄 Surf">🏄 Surf</option>
+                            <option value="⛷️ Esquí">⛷️ Esquí</option>
+                            <option value="🗳️ Política y Eventos Especiales">🗳️ Política y Eventos Especiales</option>
+                        </select>
+                    </div>
+
+                    <!-- Evento -->
+                    <div class="form-group">
+                        <label for="event">Evento</label>
+                        <input type="text" id="event" name="event" placeholder="Ej: Chelsea vs Barcelona" required>
+                    </div>
+
+                    <!-- Mercados -->
+                    <div class="form-group">
+                        <label>Mercado</label>
+                        <div class="markets-container">
+                            <div class="market-input-row">
+                                <input type="text" id="market" name="market" placeholder="Ej: Gana Local, Más de 2.5" required>
+                                <button type="button" class="add-market-btn" id="addMarketBtn" style="display: none;">+</button>
+                            </div>
+                            <div id="additionalMarketsContainer"></div>
+                        </div>
+                    </div>
+
+                    <!-- Cuota -->
+                    <div class="form-group">
+                        <label for="odds">Cuota</label>
+                        <input type="number" id="odds" name="odds" step="0.01" min="1.01" placeholder="1.50" required>
+                    </div>
+
+                    <!-- Importe -->
+                    <div class="form-group">
+                        <label for="stake">Importe (€)</label>
+                        <input type="number" id="stake" name="stake" step="0.01" min="0.01" placeholder="10.00" required>
+                    </div>
+
+                    <!-- Resultado -->
+                    <div class="form-group">
+                        <label for="status">Resultado</label>
+                        <select id="status" name="status" required>
+                            <option value="pending">⏳ Pendiente</option>
+                            <option value="win">✅ Ganada</option>
+                            <option value="loss">❌ Perdida</option>
+                        </select>
+                    </div>
+
+                    <!-- Fecha -->
+                    <div class="form-group">
+                        <label for="date">Fecha</label>
+                        <input type="date" id="date" name="date" required>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" id="saveBetBtn">
+                            <span id="btnText">Guardar Apuesta</span>
+                        </button>
+                    </div>
+
+                    <!-- Mensaje de estatus -->
+                    <div id="message" class="message"></div>
+                </form>
+            </div>
+
+            <div class="recent-section">
+                <div class="recent-bets">
+                    <h3>Últimas apuestas</h3>
+                    <div id="betsList" class="bets-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>
