@@ -3,8 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Control de Banca - Registra cada apuesta · Mide cada ventaja">
+    <title>Control de Banca - Tracking de Apuestas Deportivas</title>
+    <meta name="description" content="Registra cada apuesta, mide cada ventaja y domina tu estrategia de apuestas. Sincronización en la nube, estadísticas en tiempo real y extensión Chrome.">
+    <meta name="keywords" content="apuestas deportivas, tracking de banca, estadísticas apuestas, gestión de bankroll, ROI apuestas">
+    <meta name="author" content="Control de Banca">
     <meta name="theme-color" content="#202A2D">
+    <meta property="og:title" content="Control de Banca - Tracking de Apuestas">
+    <meta property="og:description" content="Registra cada apuesta, mide cada ventaja y domina tu estrategia.">
+    <meta property="og:image" content="icon-192.png">
+    <meta property="og:url" content="https://micontroldeapuestas.com">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Control de Banca">
+    <meta name="twitter:description" content="Tracking de apuestas deportivas con estadísticas en tiempo real">
+    
+    <!-- Google Tag Manager (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-MF5VPMNB0C"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-MF5VPMNB0C');
+    </script>
+    
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
     <style>
@@ -3146,6 +3166,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-analytics.js"></script>
 
     <!-- Firebase Config -->
     <script src="firebase-config.js"></script>
@@ -3207,7 +3228,23 @@
 
             loadBets() {
                 const saved = localStorage.getItem('bets');
-                return saved ? JSON.parse(saved) : [];
+                const storedUserId = localStorage.getItem('currentUserId');
+                const currentUser = authManager.getCurrentUser();
+                const currentUserId = currentUser?.uid;
+                
+                // Si hay bets guardadas pero no coinciden con el usuario actual, NO cargar
+                // Esto previene que datos de un usuario anterior aparezcan para un usuario nuevo
+                if (saved && storedUserId !== currentUserId) {
+                    console.warn('⚠️ localStorage contiene datos de otro usuario. No cargando:', storedUserId, 'vs', currentUserId);
+                    return [];
+                }
+                
+                // Solo cargar si ambos existen y coinciden
+                if (saved && currentUserId && storedUserId === currentUserId) {
+                    return JSON.parse(saved);
+                }
+                
+                return [];
             }
 
             saveBets() {
@@ -3326,6 +3363,13 @@
                         this.render();
                     } else {
                         console.log('No data found in Firestore for this user');
+                        // Es primer login/registro - mostrar PWA prompt si se viene desde Google Auth
+                        if (localStorage.getItem('showPWAAfterGoogleAuth') === 'true') {
+                            setTimeout(() => {
+                                showPWAInstallPrompt();
+                                localStorage.removeItem('showPWAAfterGoogleAuth');
+                            }, 500);
+                        }
                     }
                 } catch (error) {
                     console.error('Error loading from Firestore:', error);
@@ -3367,20 +3411,24 @@
 
             async loadExtensionBetsFromFirestore() {
                 try {
-                    console.log('📱 Cargando bets de extensión desde Firestore...');
+                    const currentUser = authManager.getCurrentUser();
+                    if (!currentUser) {
+                        console.log('❌ No user authenticated, skipping extension bets load');
+                        return;
+                    }
                     
-                    // Obtener todos los documentos de extension_users
-                    const extensionUsersRef = db.collection('extension_users');
-                    const snapshot = await extensionUsersRef.get();
+                    console.log('📱 Cargando bets de extensión desde Firestore para usuario:', currentUser.uid);
                     
-                    console.log(`📊 Total de documentos extension_users: ${snapshot.size}`);
+                    // Obtener SOLO el documento del usuario actual en extension_users
+                    const extensionUserRef = db.collection('extension_users').doc(currentUser.uid);
+                    const doc = await extensionUserRef.get();
                     
                     let totalExtensionBets = 0;
                     const extensionBets = [];
                     
-                    snapshot.forEach(doc => {
+                    if (doc.exists) {
                         const data = doc.data();
-                        console.log('📄 Documento extension_users:', doc.id);
+                        console.log('📄 Documento extension_users encontrado para usuario:', currentUser.uid);
                         console.log('   Datos:', data);
                         
                         if (data.bets && Array.isArray(data.bets)) {
@@ -3391,12 +3439,14 @@
                             const betsWithSource = data.bets.map(bet => ({
                                 ...bet,
                                 source: 'extension',
-                                extensionUserId: doc.id
+                                extensionUserId: currentUser.uid
                             }));
                             
                             extensionBets.push(...betsWithSource);
                         }
-                    });
+                    } else {
+                        console.log('⚠️  No hay documento extension_users para el usuario actual');
+                    }
                     
                     console.log(`📈 Total de bets de extensión: ${totalExtensionBets}`);
                     
@@ -3428,12 +3478,19 @@
 
             setupExtensionBetsListener() {
                 try {
-                    console.log('🔔 Configurando listener en tiempo real para extension_users...');
+                    const currentUser = authManager.getCurrentUser();
+                    if (!currentUser) {
+                        console.log('❌ No user authenticated, skipping extension listener setup');
+                        return;
+                    }
                     
-                    db.collection('extension_users').onSnapshot(snapshot => {
-                        console.log('📡 Cambio detectado en extension_users');
+                    console.log('🔔 Configurando listener en tiempo real para extension_users del usuario:', currentUser.uid);
+                    
+                    // Escuchar SOLO el documento del usuario actual
+                    db.collection('extension_users').doc(currentUser.uid).onSnapshot(doc => {
+                        console.log('📡 Cambio detectado en extension_users para usuario:', currentUser.uid);
                         
-                        snapshot.forEach(doc => {
+                        if (doc.exists) {
                             const data = doc.data();
                             
                             if (data.bets && Array.isArray(data.bets)) {
@@ -3447,7 +3504,7 @@
                                         this.bets.unshift({
                                             ...bet,
                                             source: 'extension',
-                                            extensionUserId: doc.id
+                                            extensionUserId: currentUser.uid
                                         });
                                     });
                                     
@@ -3456,7 +3513,9 @@
                                     console.log('✅ Apuestas de extensión sincronizadas en tiempo real');
                                 }
                             }
-                        });
+                        } else {
+                            console.log('⚠️  No hay documento extension_users para el usuario actual');
+                        }
                     });
                 } catch (error) {
                     console.error('❌ Error configurando listener:', error);
@@ -4868,6 +4927,13 @@
                 success.classList.add('show');
                 error.classList.remove('show');
                 document.getElementById('registerForm').reset();
+                
+                // Mostrar PWA install prompt después del registro (para usuarios móviles)
+                setTimeout(() => {
+                    showPWAInstallPrompt();
+                    // Limpiar el flag para no mostrarlo de nuevo desde window load
+                    localStorage.removeItem('isFirstRegistration');
+                }, 2000);
             }
 
             btn.disabled = false;
@@ -4937,6 +5003,9 @@
                 error.classList.add('show');
                 btn.disabled = false;
                 btn.innerHTML = '<img src="icon-google.png" alt="Google" style="width: 20px; height: 20px;"><span>Continuar con Google</span>';
+            } else {
+                // Si Google login fue exitosa, marcar para mostrar PWA prompt si es necesario
+                localStorage.setItem('showPWAAfterGoogleAuth', 'true');
             }
         });
 
@@ -4962,6 +5031,12 @@
             if (confirm('¿Desconectar de la aplicación?')) {
                 const result = await authManager.logout();
                 if (result.success) {
+                    // Limpiar TODOS los datos del usuario ANTES de recargar
+                    localStorage.removeItem('bets');
+                    localStorage.removeItem('initialBankroll');
+                    localStorage.removeItem('currentUserId');
+                    localStorage.removeItem('firestore_user_uid');
+                    localStorage.removeItem('firestore_user_email');
                     location.reload();
                 }
             }
