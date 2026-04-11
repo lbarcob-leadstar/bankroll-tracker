@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <link rel="icon" type="image/png" href="icon-extension.png">
     <title>Control de Banca - Tracking de Apuestas Deportivas</title>
     <meta name="description" content="Registra cada apuesta, mide cada ventaja y domina tu estrategia de apuestas. Sincronización en la nube, estadísticas en tiempo real y extensión Chrome.">
@@ -65,7 +65,7 @@
         }
 
         body.with-app {
-            padding-bottom: 80px;
+            padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
         }
 
         /* ===== AUTH STYLES ===== */
@@ -264,7 +264,7 @@
 
         #appContent.active {
             display: block;
-            padding-bottom: 80px;
+            padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
         }
 
         .container {
@@ -294,7 +294,7 @@
             display: flex;
             justify-content: space-around;
             align-items: flex-end;
-            padding: 0.4rem 0.5rem 0.5rem;
+            padding: 0.4rem 0.5rem calc(0.5rem + env(safe-area-inset-bottom, 0px));
             z-index: 1000;
         }
 
@@ -4969,6 +4969,13 @@
             document.getElementById('loginPage').style.display = 'none';
             document.getElementById('registerPage').style.display = 'none';
             document.getElementById('forgotPasswordPage').style.display = 'none';
+            
+            // Mostrar PWA install prompt en móvil si no se ha mostrado antes
+            setTimeout(() => {
+                if (!window.matchMedia('(display-mode: standalone)').matches) {
+                    showPWAInstallPrompt();
+                }
+            }, 2000);
         }
 
         // Hide App (when not authenticated)

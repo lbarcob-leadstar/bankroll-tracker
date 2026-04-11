@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bankroll-tracker-v12';
+const CACHE_NAME = 'bankroll-tracker-v13';
 const urlsToCache = [
   './',
   './index.html',
