@@ -3429,11 +3429,14 @@
                     await dataService.init();
                     const sb = dataService.supabase;
                     
-                    console.log('Saving to Supabase for user:', userId);
-                    console.log('Bets to save:', this.bets.length);
+                    console.log('💾 Saving to Supabase for user:', userId, '| Bets:', this.bets.length);
                     
                     // Eliminar apuestas existentes del usuario
-                    await sb.from('bets').delete().eq('user_id', userId);
+                    const { error: deleteError } = await sb.from('bets').delete().eq('user_id', userId);
+                    if (deleteError) {
+                        console.error('❌ Error deleting bets:', deleteError);
+                        throw deleteError;
+                    }
                     
                     // Insertar todas las apuestas actuales
                     if (this.bets.length > 0) {
@@ -3453,13 +3456,17 @@
                             bet_date: bet.date || new Date().toISOString()
                         }));
                         
-                        const { error } = await sb.from('bets').insert(betsToInsert);
-                        if (error) throw error;
+                        const { data: insertData, error: insertError } = await sb.from('bets').insert(betsToInsert).select();
+                        if (insertError) {
+                            console.error('❌ Error inserting bets:', insertError);
+                            throw insertError;
+                        }
+                        console.log('✅ Saved', insertData?.length, 'bets to Supabase');
+                    } else {
+                        console.log('✅ 0 bets to save (all deleted)');
                     }
-                    
-                    console.log('Successfully saved to Supabase');
                 } catch (error) {
-                    console.error('Error saving to Supabase:', error);
+                    console.error('❌ Error saving to Supabase:', error.message, error.details, error.hint);
                 } finally {
                     this.syncing = false;
                 }
@@ -3471,9 +3478,17 @@
                 try {
                     this.syncing = true;
                     const userId = authManager.getCurrentUser().id;
-                    await dataService.setInitialBankroll(userId, this.initialBankroll);
+                    console.log('💾 Saving bankroll to Supabase:', this.initialBankroll, 'for user:', userId);
+                    const result = await dataService.setInitialBankroll(userId, this.initialBankroll);
+                    if (result.success) {
+                        console.log('✅ Bankroll saved to Supabase');
+                        // Para usuario nuevo: marcar datos como cargados tras primer guardado
+                        this.dataLoaded = true;
+                    } else {
+                        console.error('❌ Failed to save bankroll:', result.error);
+                    }
                 } catch (error) {
-                    console.error('Error saving bankroll to Supabase:', error);
+                    console.error('❌ Error saving bankroll to Supabase:', error);
                 } finally {
                     this.syncing = false;
                 }
@@ -3487,13 +3502,15 @@
                 
                 try {
                     const userId = authManager.getCurrentUser().id;
-                    console.log('Loading data from Supabase for user:', userId);
+                    console.log('📥 Loading data from Supabase for user:', userId);
                     await dataService.init();
                     
                     // Cargar apuestas
                     const betsResult = await dataService.getBets(userId);
-                    if (betsResult.success && betsResult.data.length > 0) {
-                        console.log('Loading', betsResult.data.length, 'bets from Supabase');
+                    console.log('📥 Bets result:', betsResult.success, 'count:', betsResult.data?.length, 'error:', betsResult.error);
+                    
+                    if (betsResult.success && betsResult.data && betsResult.data.length > 0) {
+                        console.log('✅ Loading', betsResult.data.length, 'bets from Supabase');
                         this.bets = betsResult.data.map(row => ({
                             id: row.id,
                             type: row.bet_type || 'simple',
@@ -3511,15 +3528,19 @@
                             betDate: row.bet_date ? row.bet_date.split('T')[0] : ''
                         }));
                         localStorage.setItem('bets', JSON.stringify(this.bets));
-                    } else {
-                        console.log('No bets found in Supabase for this user');
+                    } else if (betsResult.success) {
+                        console.log('ℹ️ No bets found in Supabase (new user or empty)');
                         this.bets = [];
+                    } else {
+                        console.error('❌ Failed to load bets:', betsResult.error);
                     }
                     
                     // Cargar banca inicial
                     const bankrollResult = await dataService.getInitialBankroll(userId);
+                    console.log('📥 Bankroll result:', bankrollResult.success, 'value:', bankrollResult.bankroll, 'error:', bankrollResult.error);
+                    
                     if (bankrollResult.success && bankrollResult.bankroll > 0) {
-                        console.log('Loading bankroll from Supabase:', bankrollResult.bankroll);
+                        console.log('✅ Loading bankroll from Supabase:', bankrollResult.bankroll);
                         this.initialBankroll = bankrollResult.bankroll;
                         localStorage.setItem('initialBankroll', this.initialBankroll.toString());
                     }
@@ -3531,9 +3552,9 @@
                     // Verificar y ocultar modal de banca inicial si hay datos
                     this.checkInitialBankroll();
                     this.render();
-                    console.log('✅ Datos cargados correctamente desde Supabase');
+                    console.log('✅ Datos cargados correctamente. Bets:', this.bets.length, 'Bankroll:', this.initialBankroll);
                 } catch (error) {
-                    console.error('Error loading from Supabase:', error);
+                    console.error('❌ Error loading from Supabase:', error.message, error);
                     
                     // Fallback: cargar desde localStorage si Supabase falla
                     const saved = localStorage.getItem('bets');
@@ -3544,10 +3565,10 @@
                         this.bets = JSON.parse(saved);
                         const savedBankroll = localStorage.getItem('initialBankroll');
                         if (savedBankroll) this.initialBankroll = parseFloat(savedBankroll);
-                        this.dataLoaded = true;
-                        this.checkInitialBankroll();
-                        this.render();
                     }
+                    this.dataLoaded = true;
+                    this.checkInitialBankroll();
+                    this.render();
                 }
             }
 
