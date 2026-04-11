@@ -16,7 +16,6 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Control de Banca">
     <meta name="twitter:description" content="Tracking de apuestas deportivas con estadísticas en tiempo real">
-
     
     <!-- Google Tag Manager (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-MF5VPMNB0C"></script>
@@ -936,42 +935,24 @@
             padding: 1.5rem;
             max-width: 500px;
             width: 100%;
-            max-width: 100vw;
-            box-sizing: border-box;
             max-height: 90vh;
             overflow-y: auto;
-            overflow-x: hidden;
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .modal-header {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.85);
-            z-index: 2000;
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            padding: 1rem;
-            overflow-y: auto;
-            overflow-x: hidden;
-                /* Responsive fix for modal-content on mobile */
-                @media (max-width: 600px) {
-                    .modal-content {
-                        padding: 0.75rem 0.5rem;
-                        max-width: 100vw;
-                        border-radius: 12px;
-                    }
-                    .modal {
-                        padding: 0.5rem;
-                    }
-                    #betModal .modal-content {
-                        padding: 0.5rem 0.25rem;
-                    }
-                }
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            color: var(--primary);
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
         .close-modal {
             background: none;
             border: none;
@@ -1016,33 +997,6 @@
             font-family: inherit;
             transition: border-color 0.3s;
         }
-        /* Media query para filtros móviles al final */
-        @media (max-width: 600px) {
-            .bets-filters {
-                display: grid !important;
-                grid-template-columns: 1fr !important;
-                gap: 0.5rem !important;
-                margin-bottom: 1rem !important;
-            }
-            .bets-filters .form-group {
-                margin-bottom: 0 !important;
-            }
-            .bets-filters label {
-                font-size: 0.9rem !important;
-                margin-bottom: 0.2rem !important;
-            }
-            .bets-filters select,
-            .bets-filters input {
-                font-size: 1rem !important;
-                padding: 0.7rem !important;
-                min-width: 0 !important;
-            }
-            .bets-filters > div > div[style*="display: grid"] {
-                grid-template-columns: 1fr 1fr !important;
-                gap: 0.3rem !important;
-            }
-        }
-    </style>
 
         input:focus, select:focus, textarea:focus {
             outline: none;
@@ -1897,33 +1851,6 @@
             border-color: rgba(4, 167, 125, 0.3);
             background: rgba(4, 167, 125, 0.1);
         }
-        /* Media query para filtros móviles al final */
-        @media (max-width: 600px) {
-            .bets-filters {
-                display: grid !important;
-                grid-template-columns: 1fr !important;
-                gap: 0.5rem !important;
-                margin-bottom: 1rem !important;
-            }
-            .bets-filters .form-group {
-                margin-bottom: 0 !important;
-            }
-            .bets-filters label {
-                font-size: 0.9rem !important;
-                margin-bottom: 0.2rem !important;
-            }
-            .bets-filters select,
-            .bets-filters input {
-                font-size: 1rem !important;
-                padding: 0.7rem !important;
-                min-width: 0 !important;
-            }
-            .bets-filters > div > div[style*="display: grid"] {
-                grid-template-columns: 1fr 1fr !important;
-                gap: 0.3rem !important;
-            }
-        }
-    </style>
 
         .landing-features {
             display: flex;
