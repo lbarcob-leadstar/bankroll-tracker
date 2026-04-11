@@ -3325,13 +3325,14 @@
 
         class BankrollTracker {
             constructor() {
-                this.bets = this.loadBets();
-                this.initialBankroll = this.loadInitialBankroll();
+                this.bets = [];
+                this.initialBankroll = 0;
                 this.currentPage = 'dashboardPage';
                 this.chartPeriod = 30;
                 this.stakeType = 'currency';
                 this.betType = 'simple';
                 this.syncing = false;
+                this.dataLoaded = false;
                 const now = new Date();
                 this.currentCalendarMonth = now.getMonth();
                 this.currentCalendarYear = now.getFullYear();
@@ -3416,6 +3417,12 @@
                     return;
                 }
                 
+                // PROTECCIÓN: No borrar datos de Supabase si aún no se han cargado
+                if (!this.dataLoaded) {
+                    console.warn('⚠️ Datos aún no cargados desde Supabase, no se guarda para evitar pérdida de datos');
+                    return;
+                }
+                
                 try {
                     this.syncing = true;
                     const userId = authManager.getCurrentUser().id;
@@ -3481,6 +3488,7 @@
                 try {
                     const userId = authManager.getCurrentUser().id;
                     console.log('Loading data from Supabase for user:', userId);
+                    await dataService.init();
                     
                     // Cargar apuestas
                     const betsResult = await dataService.getBets(userId);
@@ -3505,6 +3513,7 @@
                         localStorage.setItem('bets', JSON.stringify(this.bets));
                     } else {
                         console.log('No bets found in Supabase for this user');
+                        this.bets = [];
                     }
                     
                     // Cargar banca inicial
@@ -3515,38 +3524,65 @@
                         localStorage.setItem('initialBankroll', this.initialBankroll.toString());
                     }
                     
+                    // Marcar datos como cargados - ahora es seguro guardar
+                    this.dataLoaded = true;
+                    localStorage.setItem('currentUserId', userId);
+                    
                     // Verificar y ocultar modal de banca inicial si hay datos
                     this.checkInitialBankroll();
                     this.render();
+                    console.log('✅ Datos cargados correctamente desde Supabase');
                 } catch (error) {
                     console.error('Error loading from Supabase:', error);
+                    
+                    // Fallback: cargar desde localStorage si Supabase falla
+                    const saved = localStorage.getItem('bets');
+                    const storedUserId = localStorage.getItem('currentUserId');
+                    const currentUserId = authManager.getCurrentUser()?.id;
+                    if (saved && storedUserId === currentUserId) {
+                        console.log('⚠️ Fallback: cargando desde localStorage');
+                        this.bets = JSON.parse(saved);
+                        const savedBankroll = localStorage.getItem('initialBankroll');
+                        if (savedBankroll) this.initialBankroll = parseFloat(savedBankroll);
+                        this.dataLoaded = true;
+                        this.checkInitialBankroll();
+                        this.render();
+                    }
                 }
             }
 
             setupSupabaseSync() {
-                // Si ya hay usuario autenticado, cargar datos ahora
-                const currentUser = authManager.getCurrentUser();
-                if (currentUser) {
-                    this.clearOldUserData(currentUser.id);
-                    
-                    setTimeout(async () => {
-                        await this.loadFromSupabase();
-                    }, 500);
-                }
-                
-                // Escuchar cambios de autenticación
+                // Escuchar cambios de autenticación - esto es la fuente principal de datos
                 window.addEventListener('authChanged', async (event) => {
                     const user = event.detail?.user;
                     if (user) {
+                        console.log('🔑 Auth confirmada, cargando datos para:', user.id);
                         this.clearOldUserData(user.id);
-                        
-                        setTimeout(async () => {
-                            await this.loadFromSupabase();
-                        }, 500);
+                        await this.loadFromSupabase();
                     } else {
                         this.clearAllUserData();
                     }
                 });
+                
+                // Fallback: si authManager ya tiene usuario (por si el evento ya se disparó)
+                this.waitForAuth();
+            }
+            
+            async waitForAuth() {
+                // Esperar hasta 5 segundos a que auth esté lista
+                for (let i = 0; i < 50; i++) {
+                    if (authManager.isAuthenticated()) {
+                        if (!this.dataLoaded) {
+                            console.log('🔑 Auth detectada en polling, cargando datos...');
+                            const user = authManager.getCurrentUser();
+                            this.clearOldUserData(user.id);
+                            await this.loadFromSupabase();
+                        }
+                        return;
+                    }
+                    await new Promise(r => setTimeout(r, 100));
+                }
+                console.log('⏰ Auth timeout - usuario no autenticado');
             }
 
             clearOldUserData(currentUserId) {
