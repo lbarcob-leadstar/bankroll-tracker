@@ -168,12 +168,11 @@ class SupabaseDataService {
         try {
             await this.init();
             
+            // Update only the bankroll field for existing user row
             const { error } = await this.supabase
                 .from('users')
-                .upsert({
-                    id: userId,
-                    initial_bankroll: bankroll
-                });
+                .update({ initial_bankroll: bankroll })
+                .eq('id', userId);
 
             if (error) throw error;
             
