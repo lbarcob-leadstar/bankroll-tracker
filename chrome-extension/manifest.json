@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Mi Control de Apuestas",
-  "version": "1.1",
+  "version": "1.2",
   "description": "Registra apuestas rápidamente desde cualquier sitio web",
   "author": "Control de Banca",
   "homepage_url": "https://micontroldeapuestas.com",
@@ -18,7 +18,6 @@
   ],
   "action": {
     "default_title": "Mi Control de Apuestas",
-    "default_popup": "sidebar.html",
     "default_icons": {
       "16": "images/icon-16.png",
       "32": "images/icon-32.png",

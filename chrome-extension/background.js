@@ -4,6 +4,8 @@ console.log('🚀 Background service worker iniciado');
 
 chrome.runtime.onInstalled.addListener(() => {
     console.log('✅ Extensión instalada/actualizada');
+    // Habilitar el side panel para todas las pestañas
+    chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
 });
 
 // Abrir sidebar cuando se hace click en el icono
