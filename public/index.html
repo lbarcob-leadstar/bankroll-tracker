@@ -935,8 +935,10 @@
             padding: 1.5rem;
             max-width: 500px;
             width: 100%;
+            box-sizing: border-box;
             max-height: 90vh;
             overflow-y: auto;
+            overflow-x: hidden;
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
@@ -988,6 +990,8 @@
 
         input, select, textarea {
             width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
             padding: 0.75rem;
             background: var(--bg-tertiary);
             border: 1px solid var(--border);
