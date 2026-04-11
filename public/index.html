@@ -17,7 +17,7 @@
     <meta name="twitter:title" content="Control de Banca">
     <meta name="twitter:description" content="Tracking de apuestas deportivas con estadísticas en tiempo real">
 
-    <!-- Filtros mobile: restaurar a como estaban antes -->
+    
     <!-- Google Tag Manager (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-MF5VPMNB0C"></script>
     <script>
@@ -30,31 +30,6 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
     <style>
-                @media (max-width: 600px) {
-                    .bets-filters {
-                        display: grid !important;
-                        grid-template-columns: 1fr !important;
-                        gap: 0.5rem !important;
-                        margin-bottom: 1rem !important;
-                    }
-                    .bets-filters .form-group {
-                        margin-bottom: 0 !important;
-                    }
-                    .bets-filters label {
-                        font-size: 0.9rem !important;
-                        margin-bottom: 0.2rem !important;
-                    }
-                    .bets-filters select,
-                    .bets-filters input {
-                        font-size: 1rem !important;
-                        padding: 0.7rem !important;
-                        min-width: 0 !important;
-                    }
-                    .bets-filters > div > div[style*="display: grid"] {
-                        grid-template-columns: 1fr 1fr !important;
-                        gap: 0.3rem !important;
-                    }
-                }
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0;700;1;700&display=swap');
 
         * {
@@ -1041,6 +1016,33 @@
             font-family: inherit;
             transition: border-color 0.3s;
         }
+        /* Media query para filtros móviles al final */
+        @media (max-width: 600px) {
+            .bets-filters {
+                display: grid !important;
+                grid-template-columns: 1fr !important;
+                gap: 0.5rem !important;
+                margin-bottom: 1rem !important;
+            }
+            .bets-filters .form-group {
+                margin-bottom: 0 !important;
+            }
+            .bets-filters label {
+                font-size: 0.9rem !important;
+                margin-bottom: 0.2rem !important;
+            }
+            .bets-filters select,
+            .bets-filters input {
+                font-size: 1rem !important;
+                padding: 0.7rem !important;
+                min-width: 0 !important;
+            }
+            .bets-filters > div > div[style*="display: grid"] {
+                grid-template-columns: 1fr 1fr !important;
+                gap: 0.3rem !important;
+            }
+        }
+    </style>
 
         input:focus, select:focus, textarea:focus {
             outline: none;
