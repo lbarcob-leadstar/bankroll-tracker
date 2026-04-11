@@ -42,12 +42,17 @@
             --success: #10b981;
             --danger: #ef4444;
             --warning: #f59e0b;
-            --bg: #0F1215;
-            --bg-secondary: #202A2D;
-            --bg-tertiary: #2D3A3F;
+            --bg: #0a0e12;
+            --bg-secondary: #141b20;
+            --bg-tertiary: #1c262b;
             --text: #f1f5f9;
-            --text-secondary: #cbd5e1;
-            --border: #3A4850;
+            --text-secondary: #8899a6;
+            --border: rgba(255, 255, 255, 0.06);
+            --glass: rgba(20, 30, 40, 0.45);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --glow-green: rgba(4, 167, 125, 0.15);
+            --glow-red: rgba(239, 68, 68, 0.15);
         }
 
         body {
@@ -348,29 +353,86 @@
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
+            gap: 0.75rem;
             margin-bottom: 1.5rem;
         }
 
         .stat-card {
-            background: rgba(32, 42, 45, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(24px) saturate(1.2);
+            -webkit-backdrop-filter: blur(24px) saturate(1.2);
             padding: 1.25rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 16px;
+            box-shadow: var(--glass-shadow);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            opacity: 0.5;
+        }
+
+        .stat-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+
+        .stat-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .stat-icon.green {
+            background: var(--glow-green);
+        }
+
+        .stat-icon.red {
+            background: var(--glow-red);
+        }
+
+        .stat-icon.blue {
+            background: rgba(59, 130, 246, 0.15);
+        }
+
+        .stat-icon.amber {
+            background: rgba(245, 158, 11, 0.15);
         }
 
         .stat-label {
-            font-size: 0.875rem;
+            font-size: 0.8rem;
             color: var(--text-secondary);
-            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
         }
 
         .stat-value {
-            font-size: 1.75rem;
-            font-weight: bold;
+            font-size: 1.6rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            line-height: 1.2;
         }
 
         .stat-value.positive {
@@ -382,20 +444,43 @@
         }
 
         .stat-subtext {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: var(--text-secondary);
-            margin-top: 0.25rem;
+            margin-top: 0.35rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .stat-subtext .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.15rem 0.5rem;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            font-weight: 600;
+        }
+
+        .stat-subtext .badge.positive {
+            background: var(--glow-green);
+            color: var(--success);
+        }
+
+        .stat-subtext .badge.negative {
+            background: var(--glow-red);
+            color: var(--danger);
         }
 
         /* Chart */
         .chart-container {
-            background: rgba(32, 42, 45, 0.5);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
+            background: var(--glass);
+            backdrop-filter: blur(24px) saturate(1.2);
+            -webkit-backdrop-filter: blur(24px) saturate(1.2);
             padding: 1.5rem;
-            border-radius: 12px;
+            border-radius: 16px;
             margin-bottom: 1.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
         }
 
         .chart-header {
@@ -446,13 +531,14 @@
 
         /* Monthly Calendar */
         .monthly-calendar {
-            background: rgba(32, 42, 45, 0.5);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
+            background: var(--glass);
+            backdrop-filter: blur(24px) saturate(1.2);
+            -webkit-backdrop-filter: blur(24px) saturate(1.2);
             padding: 1.5rem;
-            border-radius: 12px;
+            border-radius: 16px;
             margin-bottom: 1.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
         }
 
         @media (max-width: 600px) {
@@ -1184,17 +1270,19 @@
 
         .progress-bar {
             width: 100%;
-            height: 6px;
-            background: var(--bg-tertiary);
-            border-radius: 3px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 4px;
             overflow: hidden;
-            margin-top: 0.5rem;
+            margin-top: 0.75rem;
         }
 
         .progress-fill {
             height: 100%;
-            background: var(--success);
-            transition: width 0.3s;
+            background: linear-gradient(90deg, var(--primary), var(--success));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 8px var(--glow-green);
         }
 
         .loading {
@@ -2582,26 +2670,38 @@
 
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <div class="stat-label">Bankroll</div>
+                        <div class="stat-card-header">
+                            <div class="stat-label">Bankroll</div>
+                            <div class="stat-icon green">💰</div>
+                        </div>
                         <div class="stat-value" id="dashBankroll">€0</div>
                         <div class="progress-bar">
                             <div class="progress-fill" id="dashProgress"></div>
                         </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">Beneficio</div>
+                        <div class="stat-card-header">
+                            <div class="stat-label">Beneficio</div>
+                            <div class="stat-icon green">📈</div>
+                        </div>
                         <div class="stat-value" id="dashProfit">€0</div>
                         <div class="stat-subtext" id="dashROI">ROI: 0%</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">Apuestas</div>
+                        <div class="stat-card-header">
+                            <div class="stat-label">Apuestas</div>
+                            <div class="stat-icon blue">🎯</div>
+                        </div>
                         <div class="stat-value" id="dashBets">0</div>
-                        <div class="stat-subtext" id="dashWinRate">% Aciertos: 0%</div>
+                        <div class="stat-subtext" id="dashWinRate">Aciertos: 0%</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">Progresión</div>
+                        <div class="stat-card-header">
+                            <div class="stat-label">Progresión</div>
+                            <div class="stat-icon amber">📊</div>
+                        </div>
                         <div class="stat-value" id="dashProgression">0%</div>
-                        <div class="stat-subtext">vs. inicial</div>
+                        <div class="stat-subtext">vs. banca inicial</div>
                     </div>
                 </div>
 
@@ -2622,7 +2722,10 @@
 
                 <div id="monthlyCalendar" class="monthly-calendar"></div>
 
-                <h3 style="margin: 1.5rem 0 1rem; color: var(--text);">Últimas apuestas</h3>
+                <div style="display: flex; align-items: center; justify-content: space-between; margin: 1.5rem 0 1rem;">
+                    <h3 style="color: var(--text); font-size: 1.1rem; font-weight: 600;">Últimas apuestas</h3>
+                    <span style="font-size: 0.75rem; color: var(--text-secondary); cursor: pointer;" onclick="document.querySelector('[data-page=betsPage]').click()">Ver todas →</span>
+                </div>
                 <div id="recentBets"></div>
             </div>
 
@@ -3698,9 +3801,9 @@
                 document.getElementById('dashProfit').className = 'stat-value ' + 
                     (stats.profit >= 0 ? 'positive' : 'negative');
                 
-                document.getElementById('dashROI').textContent = `ROI: ${stats.roi >= 0 ? '+' : ''}${stats.roi}%`;
+                document.getElementById('dashROI').innerHTML = `<span class="badge ${stats.roi >= 0 ? 'positive' : 'negative'}">${stats.roi >= 0 ? '↑' : '↓'} ROI: ${stats.roi >= 0 ? '+' : ''}${stats.roi}%</span>`;
                 document.getElementById('dashBets').textContent = stats.totalBets;
-                document.getElementById('dashWinRate').textContent = `% Aciertos: ${stats.winRate}%`;
+                document.getElementById('dashWinRate').innerHTML = `<span class="badge ${stats.winRate >= 50 ? 'positive' : 'negative'}">Aciertos: ${stats.winRate}%</span>`;
                 document.getElementById('dashProgression').textContent = 
                     `${stats.progression >= 0 ? '+' : ''}${stats.progression}%`;
                 document.getElementById('dashProgression').className = 'stat-value ' +
