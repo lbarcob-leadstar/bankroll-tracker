@@ -1897,6 +1897,33 @@
             border-color: rgba(4, 167, 125, 0.3);
             background: rgba(4, 167, 125, 0.1);
         }
+        /* Media query para filtros móviles al final */
+        @media (max-width: 600px) {
+            .bets-filters {
+                display: grid !important;
+                grid-template-columns: 1fr !important;
+                gap: 0.5rem !important;
+                margin-bottom: 1rem !important;
+            }
+            .bets-filters .form-group {
+                margin-bottom: 0 !important;
+            }
+            .bets-filters label {
+                font-size: 0.9rem !important;
+                margin-bottom: 0.2rem !important;
+            }
+            .bets-filters select,
+            .bets-filters input {
+                font-size: 1rem !important;
+                padding: 0.7rem !important;
+                min-width: 0 !important;
+            }
+            .bets-filters > div > div[style*="display: grid"] {
+                grid-template-columns: 1fr 1fr !important;
+                gap: 0.3rem !important;
+            }
+        }
+    </style>
 
         .landing-features {
             display: flex;
