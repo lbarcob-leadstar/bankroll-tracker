@@ -3,8 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Control de Banca - Registra cada apuesta · Mide cada ventaja">
+    <title>Control de Banca - Tracking de Apuestas Deportivas</title>
+    <meta name="description" content="Registra cada apuesta, mide cada ventaja y domina tu estrategia de apuestas. Sincronización en la nube, estadísticas en tiempo real y extensión Chrome.">
+    <meta name="keywords" content="apuestas deportivas, tracking de banca, estadísticas apuestas, gestión de bankroll, ROI apuestas">
+    <meta name="author" content="Control de Banca">
     <meta name="theme-color" content="#202A2D">
+    <meta property="og:title" content="Control de Banca - Tracking de Apuestas">
+    <meta property="og:description" content="Registra cada apuesta, mide cada ventaja y domina tu estrategia.">
+    <meta property="og:image" content="icon-192.png">
+    <meta property="og:url" content="https://micontroldeapuestas.com">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Control de Banca">
+    <meta name="twitter:description" content="Tracking de apuestas deportivas con estadísticas en tiempo real">
+    
+    <!-- Google Tag Manager (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-MF5VPMNB0C"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-MF5VPMNB0C');
+    </script>
+    
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
     <style>
@@ -2315,7 +2335,7 @@
             <div class="feature-block">
                 <div class="feature-text">
                     <h3>Sincronización en la Nube</h3>
-                    <p>Tus datos están seguros en Firebase. Accede desde cualquier dispositivo, en cualquier momento. Tu banca siempre contigo, sincronizada automáticamente.</p>
+                    <p>Tus datos están seguros en la nube. Accede desde cualquier dispositivo, en cualquier momento. Tu banca siempre contigo, sincronizada automáticamente.</p>
                 </div>
                 <div class="feature-image">
                     <img src="landing/resumen-landing.png" alt="Sincronización en la nube" onclick="openImageModal(this.src)">
@@ -3142,16 +3162,13 @@
         </nav>
     </div>
 
-    <!-- Firebase SDK v8 (Compatible) -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.0"></script>
 
-    <!-- Firebase Config -->
-    <script src="firebase-config.js"></script>
-
-    <!-- Auth Module -->
-    <script src="auth.js"></script>
+    <!-- Supabase Config & Modules -->
+    <script src="supabase-client.js"></script>
+    <script src="supabase-auth.js"></script>
+    <script src="supabase-data.js"></script>
 
     <!-- Tesseract.js for OCR -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.0.4/dist/tesseract.min.js"></script>
@@ -3188,7 +3205,7 @@
                 };
                 
                 this.init();
-                this.setupFirestoreSync();
+                this.setupSupabaseSync();
             }
 
             init() {
@@ -3196,26 +3213,42 @@
                 this.render();
                 this.setupEventListeners();
                 
-                // Recargar desde Firestore cuando vuelves a la app
+                // Recargar desde Supabase cuando vuelves a la app
                 window.addEventListener('focus', () => {
                     if (authManager.isAuthenticated()) {
-                        console.log('🔄 Recargando datos desde Firestore (app focused)');
-                        this.loadFromFirestore();
+                        console.log('🔄 Recargando datos desde Supabase (app focused)');
+                        this.loadFromSupabase();
                     }
                 });
             }
 
             loadBets() {
                 const saved = localStorage.getItem('bets');
-                return saved ? JSON.parse(saved) : [];
+                const storedUserId = localStorage.getItem('currentUserId');
+                const currentUser = authManager.getCurrentUser();
+                const currentUserId = currentUser?.id;
+                
+                // Si hay bets guardadas pero no coinciden con el usuario actual, NO cargar
+                // Esto previene que datos de un usuario anterior aparezcan para un usuario nuevo
+                if (saved && storedUserId !== currentUserId) {
+                    console.warn('⚠️ localStorage contiene datos de otro usuario. No cargando:', storedUserId, 'vs', currentUserId);
+                    return [];
+                }
+                
+                // Solo cargar si ambos existen y coinciden
+                if (saved && currentUserId && storedUserId === currentUserId) {
+                    return JSON.parse(saved);
+                }
+                
+                return [];
             }
 
             saveBets() {
                 localStorage.setItem('bets', JSON.stringify(this.bets));
                 
-                // Sincronizar con Firestore si hay usuario autenticado
+                // Sincronizar con Supabase si hay usuario autenticado
                 if (authManager.isAuthenticated() && !this.syncing) {
-                    this.saveToFirestore();
+                    this.saveToSupabase();
                 }
             }
 
@@ -3227,240 +3260,150 @@
             saveInitialBankroll() {
                 localStorage.setItem('initialBankroll', this.initialBankroll.toString());
                 
-                // Sincronizar con Firestore
+                // Sincronizar con Supabase
                 if (authManager.isAuthenticated() && !this.syncing) {
-                    this.saveInitialBankrollToFirestore();
+                    this.saveInitialBankrollToSupabase();
                 }
             }
 
-            // ===== FIRESTORE METHODS =====
-            async saveToFirestore() {
+            // ===== SUPABASE METHODS =====
+            async saveToSupabase() {
                 if (!authManager.isAuthenticated()) {
-                    console.log('User not authenticated, skipping Firestore save');
+                    console.log('User not authenticated, skipping Supabase save');
                     return;
                 }
                 
                 try {
                     this.syncing = true;
-                    const userId = authManager.getCurrentUser().uid;
-                    const userDocRef = db.collection('users').doc(userId);
+                    const userId = authManager.getCurrentUser().id;
+                    await dataService.init();
+                    const sb = dataService.supabase;
                     
-                    console.log('Saving to Firestore for user:', userId);
+                    console.log('Saving to Supabase for user:', userId);
                     console.log('Bets to save:', this.bets.length);
                     
-                    await userDocRef.set({
-                        bets: this.bets,
-                        lastSync: new Date().toISOString()
-                    }, { merge: true });
+                    // Eliminar apuestas existentes del usuario
+                    await sb.from('bets').delete().eq('user_id', userId);
                     
-                    console.log('Successfully saved to Firestore');
+                    // Insertar todas las apuestas actuales
+                    if (this.bets.length > 0) {
+                        const betsToInsert = this.bets.map(bet => ({
+                            user_id: userId,
+                            bet_type: bet.type || 'simple',
+                            house: bet.house || '',
+                            sport: bet.sport || '',
+                            event: bet.event || '',
+                            market: bet.market || '',
+                            odds: parseFloat(bet.odds) || 0,
+                            stake: parseFloat(bet.stake) || 0,
+                            stake_type: bet.stakeType || 'currency',
+                            profit: parseFloat(bet.profit) || 0,
+                            status: bet.status || 'pending',
+                            notes: bet.notes || '',
+                            bet_date: bet.date || new Date().toISOString()
+                        }));
+                        
+                        const { error } = await sb.from('bets').insert(betsToInsert);
+                        if (error) throw error;
+                    }
+                    
+                    console.log('Successfully saved to Supabase');
                 } catch (error) {
-                    console.error('Error saving to Firestore:', error);
-                    alert('Error sincronizando con Firestore: ' + error.message);
+                    console.error('Error saving to Supabase:', error);
                 } finally {
                     this.syncing = false;
                 }
             }
 
-            async saveInitialBankrollToFirestore() {
+            async saveInitialBankrollToSupabase() {
                 if (!authManager.isAuthenticated()) return;
                 
                 try {
                     this.syncing = true;
-                    const userId = authManager.getCurrentUser().uid;
-                    const userDocRef = db.collection('users').doc(userId);
-                    
-                    await userDocRef.set({
-                        initialBankroll: this.initialBankroll,
-                        lastSync: new Date().toISOString()
-                    }, { merge: true });
+                    const userId = authManager.getCurrentUser().id;
+                    await dataService.setInitialBankroll(userId, this.initialBankroll);
                 } catch (error) {
-                    console.error('Error saving bankroll to Firestore:', error);
+                    console.error('Error saving bankroll to Supabase:', error);
                 } finally {
                     this.syncing = false;
                 }
             }
 
-            async loadFromFirestore() {
+            async loadFromSupabase() {
                 if (!authManager.isAuthenticated()) {
-                    console.log('User not authenticated, skipping Firestore load');
+                    console.log('User not authenticated, skipping Supabase load');
                     return;
                 }
                 
                 try {
-                    const userId = authManager.getCurrentUser().uid;
-                    const userDocRef = db.collection('users').doc(userId);
+                    const userId = authManager.getCurrentUser().id;
+                    console.log('Loading data from Supabase for user:', userId);
                     
-                    console.log('Loading data from Firestore for user:', userId);
-                    const docSnapshot = await userDocRef.get();
-                    
-                    if (docSnapshot.exists) {
-                        const data = docSnapshot.data();
-                        console.log('Firestore data found:', data);
-                        
-                        // Cargar apuestas de la app web
-                        if (data.bets && Array.isArray(data.bets)) {
-                            console.log('Loading', data.bets.length, 'bets from Firestore');
-                            this.bets = data.bets;
-                        }
-                        
-                        // Cargar apuestas de la extensión
-                        if (data.extensionBets && Array.isArray(data.extensionBets)) {
-                            console.log('Loading', data.extensionBets.length, 'extension bets from Firestore');
-                            // Fusionar apuestas de la extensión
-                            this.bets = [...this.bets, ...data.extensionBets];
-                            console.log('Total bets after merge:', this.bets.length);
-                        }
-                        
-                        // Guardar en localStorage
+                    // Cargar apuestas
+                    const betsResult = await dataService.getBets(userId);
+                    if (betsResult.success && betsResult.data.length > 0) {
+                        console.log('Loading', betsResult.data.length, 'bets from Supabase');
+                        this.bets = betsResult.data.map(row => ({
+                            id: row.id,
+                            type: row.bet_type || 'simple',
+                            house: row.house || '',
+                            sport: row.sport || '',
+                            event: row.event || '',
+                            market: row.market || '',
+                            odds: row.odds,
+                            stake: row.stake,
+                            stakeType: row.stake_type || 'currency',
+                            profit: row.profit,
+                            status: row.status || 'pending',
+                            notes: row.notes || '',
+                            date: row.bet_date,
+                            betDate: row.bet_date ? row.bet_date.split('T')[0] : ''
+                        }));
                         localStorage.setItem('bets', JSON.stringify(this.bets));
-                        
-                        if (data.initialBankroll) {
-                            console.log('Loading bankroll from Firestore:', data.initialBankroll);
-                            this.initialBankroll = data.initialBankroll;
-                            localStorage.setItem('initialBankroll', this.initialBankroll.toString());
-                        }
-                        
-                        // Verificar y ocultar modal de banca inicial si hay datos
-                        this.checkInitialBankroll();
-                        this.render();
                     } else {
-                        console.log('No data found in Firestore for this user');
+                        console.log('No bets found in Supabase for this user');
                     }
+                    
+                    // Cargar banca inicial
+                    const bankrollResult = await dataService.getInitialBankroll(userId);
+                    if (bankrollResult.success && bankrollResult.bankroll > 0) {
+                        console.log('Loading bankroll from Supabase:', bankrollResult.bankroll);
+                        this.initialBankroll = bankrollResult.bankroll;
+                        localStorage.setItem('initialBankroll', this.initialBankroll.toString());
+                    }
+                    
+                    // Verificar y ocultar modal de banca inicial si hay datos
+                    this.checkInitialBankroll();
+                    this.render();
                 } catch (error) {
-                    console.error('Error loading from Firestore:', error);
+                    console.error('Error loading from Supabase:', error);
                 }
             }
 
-            setupFirestoreSync() {
+            setupSupabaseSync() {
                 // Si ya hay usuario autenticado, cargar datos ahora
                 const currentUser = authManager.getCurrentUser();
                 if (currentUser) {
-                    // Limpiar datos de otros usuarios si cambió la sesión
-                    this.clearOldUserData(currentUser.uid);
+                    this.clearOldUserData(currentUser.id);
                     
                     setTimeout(async () => {
-                        await this.loadFromFirestore();
-                        // También cargar datos de extensión
-                        await this.loadExtensionBetsFromFirestore();
+                        await this.loadFromSupabase();
                     }, 500);
                 }
                 
-                // Escuchar cambios de autenticación para futuras sesiones
-                auth.onAuthStateChanged(async (user) => {
+                // Escuchar cambios de autenticación
+                window.addEventListener('authChanged', async (event) => {
+                    const user = event.detail?.user;
                     if (user) {
-                        // Limpiar datos del usuario anterior si cambió
-                        this.clearOldUserData(user.uid);
+                        this.clearOldUserData(user.id);
                         
-                        // Cargar datos desde Firestore cuando el usuario inicia sesión
                         setTimeout(async () => {
-                            await this.loadFromFirestore();
-                            // También cargar datos de extensión
-                            await this.loadExtensionBetsFromFirestore();
+                            await this.loadFromSupabase();
                         }, 500);
                     } else {
-                        // Usuario deslogueado: limpiar todo
                         this.clearAllUserData();
                     }
                 });
-            }
-
-            async loadExtensionBetsFromFirestore() {
-                try {
-                    console.log('📱 Cargando bets de extensión desde Firestore...');
-                    
-                    // Obtener todos los documentos de extension_users
-                    const extensionUsersRef = db.collection('extension_users');
-                    const snapshot = await extensionUsersRef.get();
-                    
-                    console.log(`📊 Total de documentos extension_users: ${snapshot.size}`);
-                    
-                    let totalExtensionBets = 0;
-                    const extensionBets = [];
-                    
-                    snapshot.forEach(doc => {
-                        const data = doc.data();
-                        console.log('📄 Documento extension_users:', doc.id);
-                        console.log('   Datos:', data);
-                        
-                        if (data.bets && Array.isArray(data.bets)) {
-                            console.log(`   ✓ Encontrados ${data.bets.length} bets`);
-                            totalExtensionBets += data.bets.length;
-                            
-                            // Marcar bets como de extensión para distinción visual si es necesario
-                            const betsWithSource = data.bets.map(bet => ({
-                                ...bet,
-                                source: 'extension',
-                                extensionUserId: doc.id
-                            }));
-                            
-                            extensionBets.push(...betsWithSource);
-                        }
-                    });
-                    
-                    console.log(`📈 Total de bets de extensión: ${totalExtensionBets}`);
-                    
-                    if (totalExtensionBets > 0) {
-                        console.log(`✅ Cargados ${totalExtensionBets} bets de la extensión`);
-                        
-                        // Fusionar con bets existentes (evitar duplicados)
-                        const existingIds = new Set(this.bets.map(b => b.id));
-                        const newBets = extensionBets.filter(b => !existingIds.has(b.id));
-                        
-                        console.log(`🔄 Bets nuevos a agregar: ${newBets.length}`);
-                        
-                        if (newBets.length > 0) {
-                            console.log(`✨ Añadiendo ${newBets.length} nuevos bets de la extensión`);
-                            this.bets.push(...newBets);
-                            localStorage.setItem('bets', JSON.stringify(this.bets));
-                            this.render();
-                        }
-                    } else {
-                        console.log('⚠️  No hay bets en extension_users');
-                    }
-                    
-                    // Configurar listener en tiempo real para cambios futuros
-                    this.setupExtensionBetsListener();
-                } catch (error) {
-                    console.error('❌ Error cargando bets de extensión:', error);
-                }
-            }
-
-            setupExtensionBetsListener() {
-                try {
-                    console.log('🔔 Configurando listener en tiempo real para extension_users...');
-                    
-                    db.collection('extension_users').onSnapshot(snapshot => {
-                        console.log('📡 Cambio detectado en extension_users');
-                        
-                        snapshot.forEach(doc => {
-                            const data = doc.data();
-                            
-                            if (data.bets && Array.isArray(data.bets)) {
-                                const existingIds = new Set(this.bets.map(b => b.id));
-                                const newBets = data.bets.filter(b => !existingIds.has(b.id));
-                                
-                                if (newBets.length > 0) {
-                                    console.log(`🆕 Nuevos bets detectados: ${newBets.length}`);
-                                    
-                                    newBets.forEach(bet => {
-                                        this.bets.unshift({
-                                            ...bet,
-                                            source: 'extension',
-                                            extensionUserId: doc.id
-                                        });
-                                    });
-                                    
-                                    localStorage.setItem('bets', JSON.stringify(this.bets));
-                                    this.render();
-                                    console.log('✅ Apuestas de extensión sincronizadas en tiempo real');
-                                }
-                            }
-                        });
-                    });
-                } catch (error) {
-                    console.error('❌ Error configurando listener:', error);
-                }
             }
 
             clearOldUserData(currentUserId) {
@@ -3490,7 +3433,7 @@
             checkInitialBankroll() {
                 const setup = document.getElementById('initialBankrollSetup');
                 // Solo mostrar el modal si NO hay banca inicial Y NO hay apuestas guardadas
-                // (Si hay apuestas, es una cuenta que ya tiene datos en Firestore)
+                // (Si hay apuestas, es una cuenta que ya tiene datos en Supabase)
                 if (this.initialBankroll > 0 || this.bets.length > 0) {
                     setup.style.display = 'none';
                 } else {
@@ -4868,6 +4811,13 @@
                 success.classList.add('show');
                 error.classList.remove('show');
                 document.getElementById('registerForm').reset();
+                
+                // Mostrar PWA install prompt después del registro (para usuarios móviles)
+                setTimeout(() => {
+                    showPWAInstallPrompt();
+                    // Limpiar el flag para no mostrarlo de nuevo desde window load
+                    localStorage.removeItem('isFirstRegistration');
+                }, 2000);
             }
 
             btn.disabled = false;
@@ -4937,6 +4887,9 @@
                 error.classList.add('show');
                 btn.disabled = false;
                 btn.innerHTML = '<img src="icon-google.png" alt="Google" style="width: 20px; height: 20px;"><span>Continuar con Google</span>';
+            } else {
+                // Si Google login fue exitosa, marcar para mostrar PWA prompt si es necesario
+                localStorage.setItem('showPWAAfterGoogleAuth', 'true');
             }
         });
 
@@ -4962,6 +4915,12 @@
             if (confirm('¿Desconectar de la aplicación?')) {
                 const result = await authManager.logout();
                 if (result.success) {
+                    // Limpiar TODOS los datos del usuario ANTES de recargar
+                    localStorage.removeItem('bets');
+                    localStorage.removeItem('initialBankroll');
+                    localStorage.removeItem('currentUserId');
+                    localStorage.removeItem('firestore_user_uid');
+                    localStorage.removeItem('firestore_user_email');
                     location.reload();
                 }
             }
@@ -5761,9 +5720,9 @@
             if (modal) {
                 modal.style.display = 'flex';
                 
-                // Primero: cargar templates de Firebase (por si se sincronizaron)
-                console.log('Cargando templates de Firebase...');
-                loadTemplatesFromFirebase();
+                // Primero: cargar templates de localStorage
+                console.log('Cargando templates guardados...');
+                loadTemplatesFromStorage();
                 
                 // Después: mostrar lista de templates guardados
                 setTimeout(() => {
@@ -5999,33 +5958,11 @@
                 created: new Date().toISOString()
             };
 
-            // Guardar en localStorage (caché local)
+            // Guardar en localStorage
             localStorage.setItem(`template_${calibratorState.house}`, JSON.stringify(template));
-
-            // Guardar en Firestore para que otros usuarios lo usen
-            if (window.db) {
-                db.collection('ocr_templates').doc(calibratorState.house).set({
-                    house: calibratorState.house,
-                    regions: calibratorState.regions,
-                    createdBy: auth.currentUser?.uid || 'system',
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    status: 'active'
-                }, { merge: true })
-                .then(() => {
-                    console.log(`✓ Template ${calibratorState.house} guardado en Firestore`);
-                    alert(`✅ Template guardado en la base de datos.\nDisponible para todos los usuarios.`);
-                    loadSavedTemplates();
-                    loadTemplatesFromFirebase(); // Recargar para refrescar caché
-                })
-                .catch(error => {
-                    console.error('Error al guardar en Firestore:', error);
-                    alert(`⚠️ Guardado localmente, pero error en servidor: ${error.message}`);
-                });
-            } else {
-                alert(`Template guardado localmente para ${calibratorState.house}`);
-                loadSavedTemplates();
-            }
+            
+            alert(`✅ Template guardado para ${calibratorState.house}`);
+            loadSavedTemplates();
         }
 
         function loadCalibratorTemplate(template) {
@@ -6038,21 +5975,9 @@
             });
         }
 
-        function loadTemplatesFromFirebase() {
-            if (!window.db) return;
-
-            db.collection('ocr_templates').where('status', '==', 'active').get()
-                .then(snapshot => {
-                    snapshot.forEach(doc => {
-                        const template = doc.data();
-                        // Guardar en caché local
-                        localStorage.setItem(`template_${template.house}`, JSON.stringify(template));
-                        console.log(`✓ Template cargado: ${template.house}`);
-                    });
-                    // Recargar lista visual
-                    loadSavedTemplates();
-                })
-                .catch(error => console.log('Error cargando templates:', error));
+        function loadTemplatesFromStorage() {
+            // Templates se cargan directamente desde localStorage
+            loadSavedTemplates();
         }
 
         function loadSavedTemplates() {
@@ -6089,10 +6014,6 @@
                     deleteBtn.onclick = () => {
                         if (confirm(`¿Eliminar template de ${house}?`)) {
                             localStorage.removeItem(`template_${house}`);
-                            if (window.db && auth.currentUser) {
-                                db.collection('ocr_templates').doc(house).delete()
-                                    .catch(err => console.log('Error eliminando:', err));
-                            }
                             loadSavedTemplates();
                         }
                     };
@@ -6306,10 +6227,10 @@
             if (!authManager.isAuthenticated()) {
                 hideApp();
             } else {
-                // Cargar templates públicos de Firebase
+                // Cargar templates guardados
                 setTimeout(() => {
-                    console.log('Cargando templates OCR de Firebase...');
-                    loadTemplatesFromFirebase();
+                    console.log('Cargando templates OCR guardados...');
+                    loadTemplatesFromStorage();
                 }, 500);
                 
                 // Mostrar PWA install prompt si es primer registro

@@ -1,8 +1,11 @@
-const CACHE_NAME = 'bankroll-tracker-v1';
+const CACHE_NAME = 'bankroll-tracker-v2';
 const urlsToCache = [
   './',
   './index.html',
-  './manifest.json'
+  './manifest.json',
+  './supabase-client.js',
+  './supabase-auth.js',
+  './supabase-data.js'
 ];
 
 // Install Service Worker
