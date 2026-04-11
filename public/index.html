@@ -3462,6 +3462,17 @@
                             throw insertError;
                         }
                         console.log('✅ Saved', insertData?.length, 'bets to Supabase');
+                        
+                        // Verificación: releer para confirmar que se guardó
+                        const { data: verifyData, error: verifyError } = await sb.from('bets').select('id').eq('user_id', userId);
+                        if (verifyError) {
+                            console.error('❌ Verification read failed:', verifyError);
+                        } else {
+                            console.log('🔍 Verification: found', verifyData?.length, 'bets in Supabase after save');
+                            if (verifyData?.length !== this.bets.length) {
+                                console.error('❌ MISMATCH! Local:', this.bets.length, 'Supabase:', verifyData?.length);
+                            }
+                        }
                     } else {
                         console.log('✅ 0 bets to save (all deleted)');
                     }
@@ -3502,10 +3513,23 @@
                 
                 try {
                     const userId = authManager.getCurrentUser().id;
+                    const userEmail = authManager.getCurrentUser().email;
                     console.log('📥 Loading data from Supabase for user:', userId);
                     await dataService.init();
+                    const sb = dataService.supabase;
                     
-                    // Cargar apuestas
+                    // PASO 0: Asegurar que existe fila en tabla users (crucial para FK)
+                    const { error: upsertError } = await sb.from('users').upsert({
+                        id: userId,
+                        email: userEmail
+                    }, { onConflict: 'id', ignoreDuplicates: true });
+                    if (upsertError) {
+                        console.error('❌ Error ensuring user row:', upsertError.message, upsertError.details);
+                    } else {
+                        console.log('✅ User row ensured in users table');
+                    }
+                    
+                    // PASO 1: Cargar apuestas
                     const betsResult = await dataService.getBets(userId);
                     console.log('📥 Bets result:', betsResult.success, 'count:', betsResult.data?.length, 'error:', betsResult.error);
                     
@@ -3535,7 +3559,7 @@
                         console.error('❌ Failed to load bets:', betsResult.error);
                     }
                     
-                    // Cargar banca inicial
+                    // PASO 2: Cargar banca inicial
                     const bankrollResult = await dataService.getInitialBankroll(userId);
                     console.log('📥 Bankroll result:', bankrollResult.success, 'value:', bankrollResult.bankroll, 'error:', bankrollResult.error);
                     
