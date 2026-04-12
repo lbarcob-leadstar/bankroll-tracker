@@ -756,6 +756,15 @@
             color: #ef4444;
         }
 
+        .calendar-day.pending {
+            background: rgba(245, 158, 11, 0.15);
+            border-color: var(--warning);
+        }
+
+        .calendar-day.pending .calendar-day-roi {
+            color: var(--warning);
+        }
+
         .calendar-day.empty {
             background: transparent;
             border: none;
@@ -4022,50 +4031,58 @@
             }
 
             renderBetItem(bet) {
-                const date = new Date(bet.date).toLocaleDateString('es-ES', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric'
-                });
-                
-                const potential = bet.status === 'win' 
-                    ? (parseFloat(bet.stake) * parseFloat(bet.odds)).toFixed(2)
-                    : bet.status === 'loss'
-                    ? '0.00'
-                    : parseFloat(bet.stake).toFixed(2);
+                let dateStr = '';
+                if (bet.date) {
+                    const raw = typeof bet.date === 'string' && bet.date.includes('T') ? bet.date.split('T')[0] : bet.date.substring(0, 10);
+                    const [y, m, d] = raw.split('-');
+                    dateStr = `${d}/${m}/${y}`;
+                } else if (bet.betDate) {
+                    const [y, m, d] = bet.betDate.split('-');
+                    dateStr = `${d}/${m}/${y}`;
+                }
 
-                const statusText = {
-                    pending: 'Pendiente',
-                    win: 'Ganada',
-                    loss: 'Perdida'
-                };
+                const stake = parseFloat(bet.stake) || 0;
+                const odds = parseFloat(bet.odds) || 0;
+                const profit = bet.status === 'win'
+                    ? (stake * odds) - stake
+                    : bet.status === 'loss'
+                    ? -stake
+                    : null;
+
+                const profitColor = bet.status === 'win' ? 'var(--success)' : bet.status === 'loss' ? 'var(--danger)' : 'var(--warning)';
+                const profitLabel = profit !== null
+                    ? `<span style="font-weight:700; font-size:1rem; color:${profitColor}">${profit >= 0 ? '+' : ''}${profit.toFixed(2)}€</span>`
+                    : `<span style="font-weight:700; font-size:0.9rem; color:var(--warning)">€${stake.toFixed(2)}</span>`;
+
+                const statusText = { pending: 'Pendiente', win: 'Ganada', loss: 'Perdida' };
+                const market = Array.isArray(bet.markets) ? bet.markets.join(' · ') : (bet.market || '');
 
                 return `
-                    <div class="bet-item ${bet.status}">
-                        <div class="bet-header">
-                            <div class="bet-info">
-                                <div class="bet-title">${bet.event || 'Evento'}</div>
-                                <div class="bet-meta">
-                                    <span class="bet-badge">${bet.sport || 'Deporte'}</span>
-                                    <span class="bet-badge">${bet.house || 'Casa'}</span>
-                                    <span>${bet.market || 'Mercado'}</span>
+                    <div class="bet-item ${bet.status}" style="padding: 1rem; margin-bottom: 0.75rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem;">
+                            <div style="flex:1; min-width:0;">
+                                <div style="font-weight:600; font-size:0.95rem; margin-bottom:0.3rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${bet.event || 'Evento'}</div>
+                                <div style="display:flex; flex-wrap:wrap; gap:0.35rem; margin-bottom:0.4rem;">
+                                    <span class="bet-badge">${bet.sport || ''}</span>
+                                    <span class="bet-badge">${bet.house || ''}</span>
+                                    ${market ? `<span class="bet-badge" style="max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${market}</span>` : ''}
                                 </div>
+                                <div style="font-size:0.75rem; color:var(--text-secondary); display:flex; gap:0.75rem; flex-wrap:wrap;">
+                                    <span>📅 ${dateStr}</span>
+                                    <span>💶 ${stake.toFixed(2)}€</span>
+                                    <span>📊 ${odds}</span>
+                                </div>
+                                ${bet.notes ? `<div style="font-size:0.75rem; color:var(--text-secondary); margin-top:0.35rem;">📝 ${bet.notes}</div>` : ''}
                             </div>
-                            <div style="display: flex; align-items: center; gap: 1.5rem;">
-                                <div class="bet-amount" style="color: ${bet.status === 'win' ? 'var(--success)' : bet.status === 'loss' ? 'var(--danger)' : 'var(--warning)'}; white-space: nowrap;">
-                                    €${potential}
-                                </div>
-                                <div class="bet-actions" style="display: flex; gap: 0.25rem; flex-shrink: 0;">
-                                    <button class="action-btn edit-bet-btn" data-bet-id="${bet.id}">✏️</button>
-                                    <button class="action-btn delete-btn delete-bet-btn" data-bet-id="${bet.id}">×</button>
+                            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:0.5rem; flex-shrink:0;">
+                                ${profitLabel}
+                                <span class="bet-status ${bet.status}" style="margin:0;">${statusText[bet.status] || bet.status}</span>
+                                <div style="display:flex; gap:0.4rem;">
+                                    <button class="action-btn edit-bet-btn" data-bet-id="${bet.id}" title="Editar">✏️</button>
+                                    <button class="action-btn delete-btn delete-bet-btn" data-bet-id="${bet.id}" title="Eliminar">×</button>
                                 </div>
                             </div>
                         </div>
-                        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem;">
-                            💶 ${bet.stake}€ | 📊 ${bet.odds} | 📅 ${date}
-                        </div>
-                        ${bet.notes ? `<div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem;">📝 ${bet.notes}</div>` : ''}
-                        <span class="bet-status ${bet.status}">${statusText[bet.status]}</span>
                     </div>
                 `;
             }
@@ -4207,41 +4224,50 @@
                 
                 // Initialize all days
                 for (let day = 1; day <= daysInMonth; day++) {
-                    calendarData[day] = { roi: 0, profit: 0, trades: 0, status: 'neutral' };
+                    calendarData[day] = { profit: 0, trades: 0, pending: 0, status: 'neutral' };
                 }
                 
                 // Calculate stats for each day
                 this.bets.forEach(bet => {
-                    const betDate = new Date(bet.date);
-                    if (betDate.getFullYear() === year && betDate.getMonth() === month) {
-                        const day = betDate.getDate();
+                    // Normalize date to YYYY-MM-DD to avoid timezone issues
+                    let betDateStr = '';
+                    if (bet.date) {
+                        if (typeof bet.date === 'string' && bet.date.includes('T')) {
+                            betDateStr = bet.date.split('T')[0];
+                        } else if (typeof bet.date === 'string' && bet.date.length >= 10) {
+                            betDateStr = bet.date.substring(0, 10);
+                        } else {
+                            betDateStr = new Date(bet.date).toISOString().split('T')[0];
+                        }
+                    } else if (bet.betDate) {
+                        betDateStr = bet.betDate.substring(0, 10);
+                    }
+                    if (!betDateStr) return;
+                    const [y, m, d] = betDateStr.split('-').map(Number);
+                    if (y === year && m === month + 1) {
                         const stake = parseFloat(bet.stake) || 0;
                         const odds = parseFloat(bet.odds) || 0;
-                        
                         if (bet.status === 'win') {
-                            const winAmount = (stake * odds) - stake;
-                            calendarData[day].profit += winAmount;
-                            calendarData[day].trades++;
+                            calendarData[d].profit += (stake * odds) - stake;
+                            calendarData[d].trades++;
                         } else if (bet.status === 'loss') {
-                            calendarData[day].profit -= stake;
-                            calendarData[day].trades++;
+                            calendarData[d].profit -= stake;
+                            calendarData[d].trades++;
+                        } else if (bet.status === 'pending') {
+                            calendarData[d].pending++;
                         }
                     }
                 });
                 
-                // Calculate ROI per day and set status
+                // Set status per day
                 for (let day = 1; day <= daysInMonth; day++) {
-                    if (calendarData[day].trades > 0) {
-                        calendarData[day].roi = ((calendarData[day].profit / this.initialBankroll) * 100).toFixed(1);
-                        if (calendarData[day].profit > 0) {
-                            calendarData[day].status = 'positive';
-                        } else if (calendarData[day].profit < 0) {
-                            calendarData[day].status = 'negative';
-                        } else {
-                            calendarData[day].status = 'neutral';
-                        }
+                    const d = calendarData[day];
+                    if (d.trades > 0) {
+                        d.status = d.profit > 0 ? 'positive' : d.profit < 0 ? 'negative' : 'neutral';
+                    } else if (d.pending > 0) {
+                        d.status = 'pending';
                     } else {
-                        calendarData[day].status = 'neutral';
+                        d.status = 'neutral';
                     }
                 }
                 
@@ -4255,10 +4281,12 @@
                 
                 const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
                                     'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-                const weekDays = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+                const weekDays = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
                 
                 const calendarStats = this.getCalendarStats(year, month);
-                const firstDay = new Date(year, month, 1).getDay();
+                // Get day of week for first day, convert Sunday(0) to 6, Monday(1) to 0, etc.
+                const firstDayRaw = new Date(year, month, 1).getDay();
+                const firstDay = firstDayRaw === 0 ? 6 : firstDayRaw - 1;
                 const daysInMonth = new Date(year, month + 1, 0).getDate();
                 
                 let html = `
@@ -4279,7 +4307,7 @@
                 
                 html += `</div><div class="calendar-grid">`;
                 
-                // Empty cells before first day
+                // Empty cells before first day (Monday = 0)
                 for (let i = 0; i < firstDay; i++) {
                     html += `<div class="calendar-day empty"></div>`;
                 }
@@ -4288,19 +4316,23 @@
                 for (let day = 1; day <= daysInMonth; day++) {
                     const dayData = calendarStats[day];
                     const status = dayData.status;
-                    const roi = dayData.roi;
+                    const profit = dayData.profit;
                     const trades = dayData.trades;
+                    const pending = dayData.pending;
                     
                     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                    
+                    let displayValue = '-';
+                    if (trades > 0) {
+                        displayValue = `${profit >= 0 ? '+' : ''}${profit.toFixed(2)}€`;
+                    } else if (pending > 0) {
+                        displayValue = `${pending} pend.`;
+                    }
                     
                     html += `
                         <div class="calendar-day ${status}" onclick="tracker.selectCalendarDay('${dateStr}', ${day}, ${month}, ${year})">
                             <div class="calendar-day-number">${day}</div>
-                            ${trades > 0 ? `
-                                <div class="calendar-day-roi">${roi > 0 ? '+' : ''}${roi}%</div>
-                            ` : `
-                                <div class="calendar-day-roi">-</div>
-                            `}
+                            <div class="calendar-day-roi">${displayValue}</div>
                         </div>
                     `;
                 }
