@@ -3780,17 +3780,26 @@
                         runningBankroll -= stake;
                         stats.totalStaked += stake;
                         stats.losses++;
+                    } else if (bet.status === 'half_win') {
+                        const halfWinAmount = (stake * odds - stake) / 2;
+                        stats.profit += halfWinAmount;
+                        runningBankroll += halfWinAmount;
+                        stats.totalStaked += stake;
+                        stats.wins++;
+                    } else if (bet.status === 'void') {
+                        // Stake devuelto, sin beneficio ni pérdida
+                        stats.totalStaked += stake;
                     } else {
                         stats.pending++;
                         stats.totalStaked += stake;
                     }
 
                     if (bet.status !== 'pending') {
-                        const date = new Date(bet.date).toLocaleDateString('es-ES', {
-                            day: '2-digit',
-                            month: '2-digit'
-                        });
-                        stats.history.push({ date, bankroll: runningBankroll });
+                        // Parsear fecha localmente para evitar shift de timezone
+                        const rawDate = String(bet.date || bet.betDate || '').substring(0, 10);
+                        const [y, mo, d] = rawDate.split('-');
+                        const dateLabel = rawDate ? `${d}/${mo}` : '?';
+                        stats.history.push({ date: dateLabel, bankroll: runningBankroll });
                     }
                 });
 
