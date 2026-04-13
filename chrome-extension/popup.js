@@ -90,16 +90,18 @@ async function logoutSupabase() {
 
 async function loginWithGoogle() {
     const redirectUrl = chrome.identity.getRedirectURL();
-    console.log('🔗 Redirect URL (añadir en Supabase):', redirectUrl);
+    const GOOGLE_CLIENT_ID = '820381002305-cs892hktkj6difpitp5pgqb51ifuk5bl.apps.googleusercontent.com';
 
-    // Forzar flujo implícito para recibir tokens directamente en el fragment
+    // Ir directo a Google OAuth, sin pasar por Supabase authorize
     const params = new URLSearchParams({
-        provider: 'google',
-        redirect_to: redirectUrl,
-        response_type: 'token',
-        flow_type: 'implicit'
+        client_id: GOOGLE_CLIENT_ID,
+        response_type: 'id_token',
+        redirect_uri: redirectUrl,
+        scope: 'openid email profile',
+        nonce: Math.random().toString(36).substring(2),
+        prompt: 'select_account'
     });
-    const authUrl = `${SUPABASE_URL}/auth/v1/authorize?${params.toString()}`;
+    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
 
     return new Promise((resolve, reject) => {
         chrome.identity.launchWebAuthFlow(
@@ -110,61 +112,42 @@ async function loginWithGoogle() {
                     return;
                 }
                 try {
-                    // Supabase implicit flow returns #access_token=...&refresh_token=...
+                    // Google devuelve id_token en el fragment
                     const hash = callbackUrl.split('#')[1] || '';
-                    const query = callbackUrl.split('?')[1]?.split('#')[0] || '';
                     const hashParams = new URLSearchParams(hash);
-                    const queryParams = new URLSearchParams(query);
+                    const id_token = hashParams.get('id_token');
 
-                    const access_token = hashParams.get('access_token') || queryParams.get('access_token');
-                    const refresh_token = hashParams.get('refresh_token') || queryParams.get('refresh_token');
-                    const expires_in = parseInt(hashParams.get('expires_in') || queryParams.get('expires_in') || '3600');
-
-                    if (!access_token) {
-                        // Si hay code (PKCE), intercambiarlo
-                        const code = queryParams.get('code');
-                        if (code) {
-                            const tokenResp = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=pkce`, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY },
-                                body: JSON.stringify({ auth_code: code, code_verifier: '' })
-                            });
-                            if (!tokenResp.ok) {
-                                reject(new Error('Error intercambiando código OAuth'));
-                                return;
-                            }
-                            const tokenData = await tokenResp.json();
-                            const userResp = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
-                                headers: { 'Authorization': `Bearer ${tokenData.access_token}`, 'apikey': SUPABASE_ANON_KEY }
-                            });
-                            const user = await userResp.json();
-                            const session = {
-                                access_token: tokenData.access_token,
-                                refresh_token: tokenData.refresh_token,
-                                expires_at: Math.floor(Date.now() / 1000) + (tokenData.expires_in || 3600),
-                                user_id: user.id,
-                                email: user.email
-                            };
-                            await setSession(session);
-                            resolve(session);
-                            return;
-                        }
-                        reject(new Error('No se recibió token. Verifica redirect URL en Supabase.'));
+                    if (!id_token) {
+                        reject(new Error('No se recibió token de Google'));
                         return;
                     }
 
-                    // Get user info from Supabase
-                    const userResp = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
-                        headers: { 'Authorization': `Bearer ${access_token}`, 'apikey': SUPABASE_ANON_KEY }
+                    // Intercambiar id_token de Google por sesión de Supabase
+                    const resp = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=id_token`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'apikey': SUPABASE_ANON_KEY
+                        },
+                        body: JSON.stringify({
+                            provider: 'google',
+                            id_token: id_token
+                        })
                     });
-                    const user = await userResp.json();
 
+                    if (!resp.ok) {
+                        const errData = await resp.json().catch(() => ({}));
+                        reject(new Error(errData.error_description || errData.msg || 'Error autenticando con Supabase'));
+                        return;
+                    }
+
+                    const data = await resp.json();
                     const session = {
-                        access_token,
-                        refresh_token,
-                        expires_at: Math.floor(Date.now() / 1000) + expires_in,
-                        user_id: user.id,
-                        email: user.email
+                        access_token: data.access_token,
+                        refresh_token: data.refresh_token,
+                        expires_at: Math.floor(Date.now() / 1000) + (data.expires_in || 3600),
+                        user_id: data.user.id,
+                        email: data.user.email
                     };
                     await setSession(session);
                     resolve(session);
