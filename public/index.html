@@ -4664,9 +4664,9 @@
                 const index = this.bets.findIndex(b => String(b.id) === String(id));
                 if (index !== -1) {
                     this.bets[index] = { ...this.bets[index], ...updatedBet };
-                    // Si se cambió betDate, actualizar date también
+                    // Si se cambió betDate, actualizar date también (como YYYY-MM-DD, sin conversión UTC)
                     if (updatedBet.betDate) {
-                        this.bets[index].date = new Date(updatedBet.betDate + 'T00:00:00').toISOString();
+                        this.bets[index].date = updatedBet.betDate;
                     }
                     this.saveBets();
                     this.render();
