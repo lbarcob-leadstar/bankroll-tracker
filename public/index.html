@@ -4287,6 +4287,11 @@
                         } else if (bet.status === 'loss') {
                             calendarData[d].profit -= stake;
                             calendarData[d].trades++;
+                        } else if (bet.status === 'half_win') {
+                            calendarData[d].profit += (stake * odds - stake) / 2;
+                            calendarData[d].trades++;
+                        } else if (bet.status === 'void') {
+                            calendarData[d].trades++;
                         } else if (bet.status === 'pending') {
                             calendarData[d].pending++;
                         }
@@ -4596,7 +4601,9 @@
             }
 
             setDefaultBetDate() {
-                const today = new Date().toISOString().split('T')[0];
+                const now = new Date();
+                const pad = n => String(n).padStart(2, '0');
+                const today = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
                 document.getElementById('betDate').value = today;
                 syncDateSelects(today);
             }
