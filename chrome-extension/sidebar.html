@@ -91,7 +91,9 @@
                             <option value="Juegging">Juegging</option>
                             <option value="PokerStars Sports">PokerStars Sports</option>
                             <option value="YaassCasino">YaassCasino</option>
+                            <option value="__other__">Otro...</option>
                         </select>
+                        <input type="text" id="houseCustom" class="custom-house-input" placeholder="Nombre de la casa" style="display: none; margin-top: 0.5rem;">
                     </div>
 
                     <!-- Deporte -->
@@ -133,8 +135,14 @@
 
                     <!-- Evento -->
                     <div class="form-group">
-                        <label for="event">Evento</label>
-                        <input type="text" id="event" name="event" placeholder="Ej: Chelsea vs Barcelona" required>
+                        <label>Evento</label>
+                        <div class="events-container">
+                            <div class="event-input-row">
+                                <input type="text" id="event" name="event" placeholder="Ej: Chelsea vs Barcelona" required>
+                                <button type="button" class="add-event-btn" id="addEventBtn" style="display: none;">+</button>
+                            </div>
+                            <div id="additionalEventsContainer"></div>
+                        </div>
                     </div>
 
                     <!-- Mercados -->
@@ -168,6 +176,8 @@
                             <option value="pending">⏳ Pendiente</option>
                             <option value="win">✅ Ganada</option>
                             <option value="loss">❌ Perdida</option>
+                            <option value="void">🔄 Anulada/Devuelta</option>
+                            <option value="half_win">✅½ Ganancia Parcial</option>
                         </select>
                     </div>
 

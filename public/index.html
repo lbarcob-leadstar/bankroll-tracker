@@ -896,6 +896,24 @@
             color: var(--warning);
         }
 
+        .bet-item.void {
+            border-left-color: var(--text-secondary);
+        }
+
+        .bet-item.half_win {
+            border-left-color: var(--success);
+        }
+
+        .bet-status.void {
+            background: rgba(148, 163, 184, 0.2);
+            color: var(--text-secondary);
+        }
+
+        .bet-status.half_win {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+        }
+
         /* Modal */
         .modal {
             display: none;
@@ -2827,6 +2845,8 @@
                             <option value="pending">Pendiente</option>
                             <option value="win">Ganada</option>
                             <option value="loss">Perdida</option>
+                            <option value="void">Anulada/Devuelta</option>
+                            <option value="half_win">Ganancia Parcial</option>
                         </select>
                     </div>
                     <div class="form-group" style="margin-bottom: 0;">
@@ -3214,7 +3234,13 @@
 
                     <div class="form-group">
                         <label>Evento</label>
-                        <input type="text" id="betEvent" required placeholder="ej. Real Madrid vs Barcelona">
+                        <div class="markets-container">
+                            <div class="market-input-row">
+                                <input type="text" id="betEvent" required placeholder="ej. Real Madrid vs Barcelona">
+                                <button type="button" class="add-market-btn" id="addEventBtn" style="display: none;">+</button>
+                            </div>
+                            <div id="additionalEventsContainer"></div>
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -3255,6 +3281,8 @@
                                 <option value="pending">Pendiente</option>
                                 <option value="win">Ganada</option>
                                 <option value="loss">Perdida</option>
+                                <option value="void">Anulada/Devuelta</option>
+                                <option value="half_win">Ganancia Parcial</option>
                             </select>
                         </div>
                     </div>
@@ -4047,14 +4075,18 @@
                     ? (stake * odds) - stake
                     : bet.status === 'loss'
                     ? -stake
+                    : bet.status === 'void'
+                    ? 0
+                    : bet.status === 'half_win'
+                    ? ((stake * odds) - stake) / 2
                     : null;
 
-                const profitColor = bet.status === 'win' ? 'var(--success)' : bet.status === 'loss' ? 'var(--danger)' : 'var(--warning)';
+                const profitColor = bet.status === 'win' ? 'var(--success)' : bet.status === 'loss' ? 'var(--danger)' : bet.status === 'void' ? 'var(--text-secondary)' : bet.status === 'half_win' ? 'var(--success)' : 'var(--warning)';
                 const profitLabel = profit !== null
                     ? `<span style="font-weight:700; font-size:1rem; color:${profitColor}">${profit >= 0 ? '+' : ''}${profit.toFixed(2)}€</span>`
                     : `<span style="font-weight:700; font-size:0.9rem; color:var(--warning)">€${stake.toFixed(2)}</span>`;
 
-                const statusText = { pending: 'Pendiente', win: 'Ganada', loss: 'Perdida' };
+                const statusText = { pending: 'Pendiente', win: 'Ganada', loss: 'Perdida', void: 'Anulada', half_win: 'Parcial' };
                 const market = Array.isArray(bet.markets) ? bet.markets.join(' · ') : (bet.market || '');
 
                 return `
@@ -4567,12 +4599,15 @@
 
             toggleAddMarketBtn() {
                 const addBtn = document.getElementById('addMarketBtn');
+                const addEventBtn = document.getElementById('addEventBtn');
                 if (this.betType === 'combined') {
                     addBtn.style.display = 'block';
+                    addEventBtn.style.display = 'block';
                 } else {
                     addBtn.style.display = 'none';
-                    // Limpiar mercados adicionales si cambias a simple
+                    addEventBtn.style.display = 'none';
                     document.getElementById('additionalMarketsContainer').innerHTML = '';
+                    document.getElementById('additionalEventsContainer').innerHTML = '';
                 }
             }
 
@@ -4594,6 +4629,24 @@
                 if (market) {
                     market.remove();
                 }
+            }
+
+            addEventField() {
+                const container = document.getElementById('additionalEventsContainer');
+                const index = container.children.length;
+                const eventDiv = document.createElement('div');
+                eventDiv.className = 'market-input-row additional-market show';
+                eventDiv.id = `additionalEvent${index}`;
+                eventDiv.innerHTML = `
+                    <input type="text" class="additional-event-input" placeholder="ej. Real Madrid vs Atlético">
+                    <button type="button" class="remove-market-btn" onclick="tracker.removeEventField(${index})">✕</button>
+                `;
+                container.appendChild(eventDiv);
+            }
+
+            removeEventField(index) {
+                const el = document.getElementById(`additionalEvent${index}`);
+                if (el) el.remove();
             }
 
             updateBet(id, updatedBet) {
@@ -4677,11 +4730,31 @@
                             market = allMarkets.join(' | ');
                         }
                     }
+
+                    // Construir event - si es combinada, incluir los eventos adicionales
+                    let eventValue = document.getElementById('betEvent').value;
+                    if (this.betType === 'combined') {
+                        const additionalEvents = document.querySelectorAll('.additional-event-input');
+                        if (additionalEvents.length > 0) {
+                            const allEvents = [eventValue];
+                            additionalEvents.forEach(input => {
+                                if (input.value.trim()) {
+                                    allEvents.push(input.value.trim());
+                                }
+                            });
+                            eventValue = allEvents.join(' | ');
+                        }
+                    }
+
+                    // Casa personalizada
+                    const houseSelect = document.getElementById('betHouse');
+                    const houseCustom = document.getElementById('betHouseCustom');
+                    const houseValue = houseSelect.value === '__other__' ? houseCustom.value.trim() : houseSelect.value;
                     
                     const bet = {
-                        house: document.getElementById('betHouse').value,
+                        house: houseValue,
                         sport: document.getElementById('betSport').value,
-                        event: document.getElementById('betEvent').value,
+                        event: eventValue,
                         market: market,
                         odds: document.getElementById('betOdds').value,
                         status: document.getElementById('betStatus').value,
@@ -4717,6 +4790,27 @@
                 document.getElementById('addMarketBtn')?.addEventListener('click', (e) => {
                     e.preventDefault();
                     this.addMarketField();
+                });
+
+                // Add event button
+                document.getElementById('addEventBtn')?.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.addEventField();
+                });
+
+                // Casa "Otro" toggle
+                const houseSelect = document.getElementById('betHouse');
+                const houseCustom = document.getElementById('betHouseCustom');
+                houseSelect?.addEventListener('change', () => {
+                    if (houseSelect.value === '__other__') {
+                        houseCustom.style.display = 'block';
+                        houseCustom.required = true;
+                        houseCustom.focus();
+                    } else {
+                        houseCustom.style.display = 'none';
+                        houseCustom.required = false;
+                        houseCustom.value = '';
+                    }
                 });
 
                 // Stake type toggle

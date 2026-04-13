@@ -201,8 +201,25 @@ function setupBetTypeSelector() {
 
 function setupAddMarketButton() {
     const addMarketBtn = document.getElementById('addMarketBtn');
-    if (addMarketBtn) {
-        addMarketBtn.addEventListener('click', addMarketField);
+    if (addMarketBtn) addMarketBtn.addEventListener('click', addMarketField);
+    const addEventBtn = document.getElementById('addEventBtn');
+    if (addEventBtn) addEventBtn.addEventListener('click', addEventField);
+
+    // Casa "Otro" toggle
+    const houseSelect = document.getElementById('house');
+    const houseCustom = document.getElementById('houseCustom');
+    if (houseSelect && houseCustom) {
+        houseSelect.addEventListener('change', () => {
+            if (houseSelect.value === '__other__') {
+                houseCustom.style.display = 'block';
+                houseCustom.required = true;
+                houseCustom.focus();
+            } else {
+                houseCustom.style.display = 'none';
+                houseCustom.required = false;
+                houseCustom.value = '';
+            }
+        });
     }
 }
 
@@ -228,12 +245,16 @@ async function logout() {
 
 
 function toggleAddMarketBtn() {
-    const addBtn = document.getElementById('addMarketBtn');
+    const addMarketBtn = document.getElementById('addMarketBtn');
+    const addEventBtn = document.getElementById('addEventBtn');
     if (betType === 'combined') {
-        addBtn.style.display = 'block';
+        addMarketBtn.style.display = 'block';
+        addEventBtn.style.display = 'block';
     } else {
-        addBtn.style.display = 'none';
+        addMarketBtn.style.display = 'none';
+        addEventBtn.style.display = 'none';
         document.getElementById('additionalMarketsContainer').innerHTML = '';
+        document.getElementById('additionalEventsContainer').innerHTML = '';
     }
 }
 
@@ -253,6 +274,34 @@ function addMarketField() {
 function removeMarketField(index) {
     const market = document.getElementById(`additionalMarket${index}`);
     if (market) market.remove();
+}
+
+function addEventField() {
+    const container = document.getElementById('additionalEventsContainer');
+    const index = container.children.length;
+    const eventDiv = document.createElement('div');
+    eventDiv.className = 'event-input-row additional-event';
+    eventDiv.id = `additionalEvent${index}`;
+    eventDiv.innerHTML = `
+        <input type="text" class="additional-event-input" placeholder="Ej: Real Madrid vs Atlético">
+        <button type="button" class="remove-market-btn" onclick="removeEventField(${index})">✕</button>
+    `;
+    container.appendChild(eventDiv);
+}
+
+function removeEventField(index) {
+    const el = document.getElementById(`additionalEvent${index}`);
+    if (el) el.remove();
+}
+
+function collectEvents() {
+    const events = [];
+    const mainEvent = document.getElementById('event').value;
+    if (mainEvent) events.push(mainEvent);
+    document.querySelectorAll('.additional-event-input').forEach(input => {
+        if (input.value) events.push(input.value);
+    });
+    return events;
 }
 
 function collectMarkets() {
@@ -283,11 +332,24 @@ async function handleFormSubmit(event) {
         return;
     }
 
+    const houseSelect = document.getElementById('house');
+    const houseCustom = document.getElementById('houseCustom');
+    const houseValue = houseSelect.value === '__other__' ? houseCustom.value.trim() : houseSelect.value;
+
+    if (!houseValue) {
+        showMessage('Introduce el nombre de la casa de apuestas', 'error');
+        btn.disabled = false;
+        btnText.textContent = 'Guardar Apuesta';
+        return;
+    }
+
+    const events = collectEvents();
+
     const bet = {
         type: betType,
-        house: document.getElementById('house').value,
+        house: houseValue,
         sport: document.getElementById('sport').value,
-        event: document.getElementById('event').value,
+        event: events.length > 1 ? events.join(' | ') : events[0] || '',
         markets: markets,
         market: markets.length === 1 ? markets[0] : markets,
         odds: parseFloat(document.getElementById('odds').value),
@@ -307,6 +369,9 @@ async function handleFormSubmit(event) {
         document.querySelector('.bet-type-option[data-type="simple"]').classList.add('active');
         betType = 'simple';
         document.getElementById('additionalMarketsContainer').innerHTML = '';
+        document.getElementById('additionalEventsContainer').innerHTML = '';
+        document.getElementById('houseCustom').style.display = 'none';
+        document.getElementById('houseCustom').value = '';
         toggleAddMarketBtn();
         showMessage('✅ Apuesta guardada y sincronizada', 'success');
         updateSyncStatus('ready');
@@ -405,8 +470,9 @@ async function loadRecentBets() {
             const betEl = document.createElement('div');
             betEl.className = 'bet-item';
 
-            const statusClass = bet.status === 'win' ? 'win' : (bet.status === 'loss' ? 'loss' : 'pending');
-            const statusText = bet.status === 'win' ? 'Ganada' : (bet.status === 'loss' ? 'Perdida' : 'Pendiente');
+            const statusMap = { win: 'Ganada', loss: 'Perdida', pending: 'Pendiente', void: 'Anulada', half_win: 'Parcial' };
+            const statusClass = bet.status || 'pending';
+            const statusText = statusMap[bet.status] || 'Pendiente';
 
             betEl.innerHTML = `
                 <div class="bet-item-info">

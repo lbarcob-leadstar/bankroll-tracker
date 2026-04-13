@@ -227,6 +227,48 @@ input::placeholder {
     animation: slideIn 0.3s ease-out;
 }
 
+.event-input-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
+}
+
+.event-input-row input {
+    flex: 1;
+}
+
+.add-event-btn {
+    padding: 0.6rem 0.75rem;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+
+.add-event-btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+}
+
+.additional-event {
+    animation: slideIn 0.3s ease-out;
+}
+
+.custom-house-input {
+    width: 100%;
+    padding: 0.6rem;
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 0.85rem;
+}
+
 @keyframes slideIn {
     from {
         opacity: 0;
