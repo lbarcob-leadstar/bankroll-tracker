@@ -4342,52 +4342,28 @@
             }
 
             selectCalendarDay(dateStr, day, month, year) {
-                // Encontrar todas las apuestas del día seleccionado
-                const selectedDate = new Date(year, month, day);
-                const selectedDateStr = selectedDate.toISOString().split('T')[0];
-                
-                console.log(`📅 Buscando bets para ${selectedDateStr} (día:${day}, mes:${month}, año:${year})`);
-                console.log(`   Total de bets en sistema: ${this.bets.length}`);
-                
+                // dateStr ya viene como YYYY-MM-DD desde renderCalendar, úsalo directamente
+                const selectedDateStr = dateStr;
+
                 const dayBets = this.bets.filter(bet => {
-                    let betDateStr;
-                    
-                    // Manejar diferentes formatos de fecha
+                    let betDateStr = '';
                     if (bet.date) {
-                        if (typeof bet.date === 'string') {
-                            // Si ya es string formato YYYY-MM-DD, usarlo directamente
-                            if (bet.date.includes('-') && !bet.date.includes('T')) {
-                                betDateStr = bet.date;
-                            } else {
-                                // Si es ISO o timestamp, convertir
-                                betDateStr = new Date(bet.date).toISOString().split('T')[0];
-                            }
-                        } else {
-                            betDateStr = new Date(bet.date).toISOString().split('T')[0];
-                        }
+                        // Normalizar siempre a YYYY-MM-DD (primeros 10 chars)
+                        betDateStr = String(bet.date).substring(0, 10);
                     } else if (bet.betDate) {
-                        // Algunos bets podrían tener betDate en lugar de date
-                        betDateStr = bet.betDate;
+                        betDateStr = String(bet.betDate).substring(0, 10);
                     }
-                    
-                    const matches = betDateStr === selectedDateStr;
-                    if (matches) {
-                        console.log(`   ✓ Encontrado: ${bet.event} (${betDateStr})`);
-                    }
-                    
-                    return matches;
+                    return betDateStr === selectedDateStr;
                 });
-                
-                console.log(`   Resultado: ${dayBets.length} apuestas para el ${day}/${month + 1}`);
-                
+
                 // Mostrar las apuestas del día
                 const container = document.getElementById('recentBets');
-                
+
                 if (dayBets.length === 0) {
                     container.innerHTML = '<div class="empty-state"><div class="empty-icon">📊</div><p>No hay apuestas para este día</p></div>';
                     return;
                 }
-                
+
                 // Cambiar el título
                 const title = document.querySelector('.page.active h3');
                 if (title) {
@@ -4395,7 +4371,7 @@
                                         'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
                     title.textContent = `Apuestas del ${day} de ${monthNames[month]}`;
                 }
-                
+
                 container.innerHTML = dayBets.map(bet => this.renderBetItem(bet)).join('');
             }
 
