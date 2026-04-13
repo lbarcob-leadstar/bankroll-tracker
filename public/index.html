@@ -4519,11 +4519,13 @@
 
             addBet(bet) {
                 bet.id = Date.now();
-                // Usar la fecha seleccionada (betDate) o la fecha actual si no hay
+                // Guardar fecha como YYYY-MM-DD para evitar problemas de timezone
                 if (bet.betDate) {
-                    bet.date = new Date(bet.betDate + 'T00:00:00').toISOString();
+                    bet.date = bet.betDate; // Ya es YYYY-MM-DD
                 } else {
-                    bet.date = new Date().toISOString();
+                    const now = new Date();
+                    const pad = n => String(n).padStart(2, '0');
+                    bet.date = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
                 }
                 this.bets.unshift(bet);
                 this.saveBets();
