@@ -88,6 +88,53 @@ async function logoutSupabase() {
     await clearSession();
 }
 
+async function loginWithGoogle() {
+    const redirectUrl = chrome.identity.getRedirectURL();
+    const authUrl = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirectUrl)}`;
+
+    return new Promise((resolve, reject) => {
+        chrome.identity.launchWebAuthFlow(
+            { url: authUrl, interactive: true },
+            async (callbackUrl) => {
+                if (chrome.runtime.lastError || !callbackUrl) {
+                    reject(new Error(chrome.runtime.lastError?.message || 'Login cancelado'));
+                    return;
+                }
+                try {
+                    // Supabase returns #access_token=...&refresh_token=...&...
+                    const hashParams = new URLSearchParams(callbackUrl.split('#')[1] || '');
+                    const access_token = hashParams.get('access_token');
+                    const refresh_token = hashParams.get('refresh_token');
+                    const expires_in = parseInt(hashParams.get('expires_in') || '3600');
+
+                    if (!access_token) {
+                        reject(new Error('No se recibió token de acceso'));
+                        return;
+                    }
+
+                    // Get user info from Supabase
+                    const userResp = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+                        headers: { 'Authorization': `Bearer ${access_token}`, 'apikey': SUPABASE_ANON_KEY }
+                    });
+                    const user = await userResp.json();
+
+                    const session = {
+                        access_token,
+                        refresh_token,
+                        expires_at: Math.floor(Date.now() / 1000) + expires_in,
+                        user_id: user.id,
+                        email: user.email
+                    };
+                    await setSession(session);
+                    resolve(session);
+                } catch (err) {
+                    reject(err);
+                }
+            }
+        );
+    });
+}
+
 // ===== UI HELPERS =====
 
 async function checkSession() {
@@ -162,6 +209,36 @@ document.addEventListener('DOMContentLoaded', async () => {
                 message.className = 'login-message error';
                 btn.disabled = false;
                 btn.textContent = 'Iniciar Sesión';
+            }
+        });
+    }
+
+    // Botón de Google Login
+    const googleBtn = document.getElementById('googleLoginBtn');
+    if (googleBtn) {
+        googleBtn.addEventListener('click', async () => {
+            const message = document.getElementById('loginMessage');
+            googleBtn.disabled = true;
+            googleBtn.textContent = 'Conectando con Google...';
+            message.textContent = '';
+            try {
+                const session = await loginWithGoogle();
+                message.textContent = `✅ Bienvenido, ${session.email.split('@')[0]}`;
+                message.className = 'login-message success';
+                setTimeout(async () => {
+                    await updateUI();
+                    initializeDateTodayinForm();
+                    setupBetTypeSelector();
+                    setupAddMarketButton();
+                    await loadRecentBets();
+                    updateSyncStatus('ready');
+                    document.getElementById('betForm').addEventListener('submit', handleFormSubmit);
+                }, 400);
+            } catch (err) {
+                message.textContent = `❌ ${err.message}`;
+                message.className = 'login-message error';
+                googleBtn.disabled = false;
+                googleBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg> Iniciar sesión con Google';
             }
         });
     }
