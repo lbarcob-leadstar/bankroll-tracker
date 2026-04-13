@@ -10,8 +10,7 @@
     "storage",
     "sidePanel",
     "activeTab",
-    "tabs",
-    "identity"
+    "tabs"
   ],
   "host_permissions": [
     "https://mohjjzxkmwypocuenahv.supabase.co/*"

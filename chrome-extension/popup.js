@@ -88,77 +88,6 @@ async function logoutSupabase() {
     await clearSession();
 }
 
-async function loginWithGoogle() {
-    const redirectUrl = chrome.identity.getRedirectURL();
-    const GOOGLE_CLIENT_ID = '820381002305-cs892hktkj6difpitp5pgqb51ifuk5bl.apps.googleusercontent.com';
-
-    // Ir directo a Google OAuth, sin pasar por Supabase authorize
-    const params = new URLSearchParams({
-        client_id: GOOGLE_CLIENT_ID,
-        response_type: 'id_token',
-        redirect_uri: redirectUrl,
-        scope: 'openid email profile',
-        nonce: Math.random().toString(36).substring(2),
-        prompt: 'select_account'
-    });
-    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
-
-    return new Promise((resolve, reject) => {
-        chrome.identity.launchWebAuthFlow(
-            { url: authUrl, interactive: true },
-            async (callbackUrl) => {
-                if (chrome.runtime.lastError || !callbackUrl) {
-                    reject(new Error(chrome.runtime.lastError?.message || 'Login cancelado'));
-                    return;
-                }
-                try {
-                    // Google devuelve id_token en el fragment
-                    const hash = callbackUrl.split('#')[1] || '';
-                    const hashParams = new URLSearchParams(hash);
-                    const id_token = hashParams.get('id_token');
-
-                    if (!id_token) {
-                        reject(new Error('No se recibió token de Google'));
-                        return;
-                    }
-
-                    // Intercambiar id_token de Google por sesión de Supabase
-                    const resp = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=id_token`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'apikey': SUPABASE_ANON_KEY
-                        },
-                        body: JSON.stringify({
-                            provider: 'google',
-                            id_token: id_token
-                        })
-                    });
-
-                    if (!resp.ok) {
-                        const errData = await resp.json().catch(() => ({}));
-                        reject(new Error(errData.error_description || errData.msg || 'Error autenticando con Supabase'));
-                        return;
-                    }
-
-                    const data = await resp.json();
-                    const session = {
-                        access_token: data.access_token,
-                        refresh_token: data.refresh_token,
-                        expires_at: Math.floor(Date.now() / 1000) + (data.expires_in || 3600),
-                        user_id: data.user.id,
-                        email: data.user.email
-                    };
-                    await setSession(session);
-                    resolve(session);
-                } catch (err) {
-                    reject(err);
-                }
-            }
-        );
-    });
-}
-
 // ===== UI HELPERS =====
 
 async function checkSession() {
@@ -233,36 +162,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 message.className = 'login-message error';
                 btn.disabled = false;
                 btn.textContent = 'Iniciar Sesión';
-            }
-        });
-    }
-
-    // Botón de Google Login
-    const googleBtn = document.getElementById('googleLoginBtn');
-    if (googleBtn) {
-        googleBtn.addEventListener('click', async () => {
-            const message = document.getElementById('loginMessage');
-            googleBtn.disabled = true;
-            googleBtn.textContent = 'Conectando con Google...';
-            message.textContent = '';
-            try {
-                const session = await loginWithGoogle();
-                message.textContent = `✅ Bienvenido, ${session.email.split('@')[0]}`;
-                message.className = 'login-message success';
-                setTimeout(async () => {
-                    await updateUI();
-                    initializeDateTodayinForm();
-                    setupBetTypeSelector();
-                    setupAddMarketButton();
-                    await loadRecentBets();
-                    updateSyncStatus('ready');
-                    document.getElementById('betForm').addEventListener('submit', handleFormSubmit);
-                }, 400);
-            } catch (err) {
-                message.textContent = `❌ ${err.message}`;
-                message.className = 'login-message error';
-                googleBtn.disabled = false;
-                googleBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg> Iniciar sesión con Google';
             }
         });
     }
