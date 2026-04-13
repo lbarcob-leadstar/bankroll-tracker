@@ -90,7 +90,16 @@ async function logoutSupabase() {
 
 async function loginWithGoogle() {
     const redirectUrl = chrome.identity.getRedirectURL();
-    const authUrl = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirectUrl)}`;
+    console.log('🔗 Redirect URL (añadir en Supabase):', redirectUrl);
+
+    // Forzar flujo implícito para recibir tokens directamente en el fragment
+    const params = new URLSearchParams({
+        provider: 'google',
+        redirect_to: redirectUrl,
+        response_type: 'token',
+        flow_type: 'implicit'
+    });
+    const authUrl = `${SUPABASE_URL}/auth/v1/authorize?${params.toString()}`;
 
     return new Promise((resolve, reject) => {
         chrome.identity.launchWebAuthFlow(
@@ -101,14 +110,46 @@ async function loginWithGoogle() {
                     return;
                 }
                 try {
-                    // Supabase returns #access_token=...&refresh_token=...&...
-                    const hashParams = new URLSearchParams(callbackUrl.split('#')[1] || '');
-                    const access_token = hashParams.get('access_token');
-                    const refresh_token = hashParams.get('refresh_token');
-                    const expires_in = parseInt(hashParams.get('expires_in') || '3600');
+                    // Supabase implicit flow returns #access_token=...&refresh_token=...
+                    const hash = callbackUrl.split('#')[1] || '';
+                    const query = callbackUrl.split('?')[1]?.split('#')[0] || '';
+                    const hashParams = new URLSearchParams(hash);
+                    const queryParams = new URLSearchParams(query);
+
+                    const access_token = hashParams.get('access_token') || queryParams.get('access_token');
+                    const refresh_token = hashParams.get('refresh_token') || queryParams.get('refresh_token');
+                    const expires_in = parseInt(hashParams.get('expires_in') || queryParams.get('expires_in') || '3600');
 
                     if (!access_token) {
-                        reject(new Error('No se recibió token de acceso'));
+                        // Si hay code (PKCE), intercambiarlo
+                        const code = queryParams.get('code');
+                        if (code) {
+                            const tokenResp = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=pkce`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY },
+                                body: JSON.stringify({ auth_code: code, code_verifier: '' })
+                            });
+                            if (!tokenResp.ok) {
+                                reject(new Error('Error intercambiando código OAuth'));
+                                return;
+                            }
+                            const tokenData = await tokenResp.json();
+                            const userResp = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+                                headers: { 'Authorization': `Bearer ${tokenData.access_token}`, 'apikey': SUPABASE_ANON_KEY }
+                            });
+                            const user = await userResp.json();
+                            const session = {
+                                access_token: tokenData.access_token,
+                                refresh_token: tokenData.refresh_token,
+                                expires_at: Math.floor(Date.now() / 1000) + (tokenData.expires_in || 3600),
+                                user_id: user.id,
+                                email: user.email
+                            };
+                            await setSession(session);
+                            resolve(session);
+                            return;
+                        }
+                        reject(new Error('No se recibió token. Verifica redirect URL en Supabase.'));
                         return;
                     }
 
