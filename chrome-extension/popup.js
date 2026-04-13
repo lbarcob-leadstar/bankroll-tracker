@@ -1,124 +1,185 @@
-// Extensión Chrome - Sincronización con Firestore REST API
-console.log('📄 popup.js se está cargando...');
+// Extensión Chrome - Sincronización con Supabase
+const SUPABASE_URL = 'https://mohjjzxkmwypocuenahv.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1vaGpqenhrbXd5cG9jdWVuYWh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NjQ5NDMsImV4cCI6MjA5MTQ0MDk0M30.eTs4gchQMf_M0bAnms9GkoQQeqrCHhp4A_LUtK-w9Wk';
 
 let betType = 'simple';
 
-const FIREBASE_CONFIG = {
-    apiKey: "AIzaSyDxpJhpatZR6qpSQU8pucZHp8HGgSCKRbg",
-    projectId: "bankroll-tracker-79d49"
-};
+// ===== GESTIÓN DE SESIÓN (chrome.storage.local, persiste entre aperturas) =====
 
-// ID único del navegador/extensión
-const EXTENSION_USER_ID = localStorage.getItem('extensionUserId') || `ext_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-if (!localStorage.getItem('extensionUserId')) {
-    localStorage.setItem('extensionUserId', EXTENSION_USER_ID);
+async function getSession() {
+    const result = await chrome.storage.local.get(['supabase_session']);
+    return result.supabase_session || null;
 }
 
-// Verificar sesión activa
-function checkSession() {
-    const userEmail = sessionStorage.getItem('userEmail');
-    return !!userEmail;
+async function setSession(session) {
+    await chrome.storage.local.set({ supabase_session: session });
 }
 
-// Mostrar pantalla de login o principal
-function updateUI() {
+async function clearSession() {
+    await chrome.storage.local.remove(['supabase_session']);
+}
+
+async function getValidToken() {
+    const session = await getSession();
+    if (!session || !session.access_token) return null;
+
+    // Refrescar si expira en menos de 5 minutos
+    const now = Math.floor(Date.now() / 1000);
+    if (session.expires_at && session.expires_at - now < 300) {
+        const refreshed = await refreshToken(session.refresh_token);
+        return refreshed ? refreshed.access_token : null;
+    }
+    return session.access_token;
+}
+
+async function refreshToken(refresh_token) {
+    try {
+        const response = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY },
+            body: JSON.stringify({ refresh_token })
+        });
+        if (!response.ok) { await clearSession(); return null; }
+        const data = await response.json();
+        const session = {
+            access_token: data.access_token,
+            refresh_token: data.refresh_token,
+            expires_at: Math.floor(Date.now() / 1000) + (data.expires_in || 3600),
+            user_id: data.user.id,
+            email: data.user.email
+        };
+        await setSession(session);
+        return session;
+    } catch { await clearSession(); return null; }
+}
+
+// ===== AUTENTICACIÓN SUPABASE =====
+
+async function loginSupabase(email, password) {
+    const response = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY },
+        body: JSON.stringify({ email, password })
+    });
+    if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error_description || err.msg || 'Credenciales incorrectas');
+    }
+    const data = await response.json();
+    const session = {
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+        expires_at: Math.floor(Date.now() / 1000) + (data.expires_in || 3600),
+        user_id: data.user.id,
+        email: data.user.email
+    };
+    await setSession(session);
+    return session;
+}
+
+async function logoutSupabase() {
+    const token = await getValidToken();
+    if (token) {
+        await fetch(`${SUPABASE_URL}/auth/v1/logout`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}`, 'apikey': SUPABASE_ANON_KEY }
+        }).catch(() => {});
+    }
+    await clearSession();
+}
+
+// ===== UI HELPERS =====
+
+async function checkSession() {
+    const session = await getSession();
+    return !!(session && session.access_token);
+}
+
+async function updateUI() {
     const loginScreen = document.getElementById('loginScreen');
     const mainScreen = document.getElementById('mainScreen');
-    
-    if (checkSession()) {
+    const hasSession = await checkSession();
+
+    if (hasSession) {
         loginScreen.style.display = 'none';
         mainScreen.style.display = 'block';
     } else {
         loginScreen.style.display = 'flex';
         mainScreen.style.display = 'none';
     }
+    return hasSession;
 }
 
 // Manejar clics en el botón de logout globalmente
 document.addEventListener('click', (e) => {
     if (e.target.id === 'logoutBtn' || e.target.closest('#logoutBtn')) {
-        console.log('🖱️ Click en logout detectado!');
         e.preventDefault();
         e.stopPropagation();
-        const confirmed = confirm('¿Estás seguro de que deseas cerrar sesión?');
-        console.log('Confirmación del usuario:', confirmed);
-        if (confirmed) {
+        if (confirm('¿Cerrar sesión?')) {
             logout();
         }
     }
 }, true);
 
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('🚀 Inicializando extensión con Firestore');
-    console.log('📱 Extension ID:', EXTENSION_USER_ID);
-    
+document.addEventListener('DOMContentLoaded', async () => {
     // Configurar el formulario de login
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
-        loginForm.addEventListener('submit', (e) => {
+        loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
+            const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value;
-            
-            if (email && password) {
-                // Guardar sesión simple (en un app real sería autenticación real)
-                sessionStorage.setItem('userEmail', email);
-                sessionStorage.setItem('userName', email.split('@')[0]);
-                
-                // Limpiar formulario
-                loginForm.reset();
-                
-                // Mostrar mensaje de bienvenida
-                const message = document.getElementById('loginMessage');
-                message.textContent = `✅ Bienvenido, ${email.split('@')[0]}`;
+            const message = document.getElementById('loginMessage');
+            const btn = loginForm.querySelector('button[type="submit"]');
+
+            if (!email || !password) {
+                message.textContent = 'Completa email y contraseña';
+                message.className = 'login-message error';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Iniciando sesión...';
+            message.textContent = '';
+
+            try {
+                const session = await loginSupabase(email, password);
+                message.textContent = `✅ Bienvenido, ${session.email.split('@')[0]}`;
                 message.className = 'login-message success';
-                
-                // Actualizar UI
-                setTimeout(() => {
-                    updateUI();
-                    
-                    // Inicializar la pantalla principal
+                loginForm.reset();
+
+                setTimeout(async () => {
+                    await updateUI();
                     initializeDateTodayinForm();
                     setupBetTypeSelector();
                     setupAddMarketButton();
-                    loadRecentBets();
+                    await loadRecentBets();
                     updateSyncStatus('ready');
-                    
                     document.getElementById('betForm').addEventListener('submit', handleFormSubmit);
-                }, 500);
-            } else {
-                const message = document.getElementById('loginMessage');
-                message.textContent = '❌ Por favor completa los campos';
+                }, 400);
+            } catch (err) {
+                message.textContent = `❌ ${err.message}`;
                 message.className = 'login-message error';
+                btn.disabled = false;
+                btn.textContent = 'Iniciar Sesión';
             }
         });
     }
-    
+
     // Verificar si hay sesión activa
-    updateUI();
-    
-    if (checkSession()) {
-        console.log('✅ Sesión activa, inicializando interfaz principal');
+    const hasSession = await updateUI();
+
+    if (hasSession) {
         initializeDateTodayinForm();
         setupBetTypeSelector();
         setupAddMarketButton();
-        loadRecentBets();
+        await loadRecentBets();
         updateSyncStatus('ready');
-        
+
         const betForm = document.getElementById('betForm');
-        console.log('📝 betForm encontrado:', !!betForm);
-        
         if (betForm) {
-            console.log('📋 Registrando evento submit en betForm');
             betForm.addEventListener('submit', handleFormSubmit);
-            console.log('✅ Evento submit registrado');
-        } else {
-            console.error('❌ No se encontró betForm');
         }
-        
-        // Verificar que el botón existe
-        const logoutBtn = document.getElementById('logoutBtn');
-        console.log('✅ Botón logout encontrado en DOMContentLoaded:', !!logoutBtn);
     }
 });
 
@@ -145,37 +206,24 @@ function setupAddMarketButton() {
     }
 }
 
-function logout() {
-    // Limpiar sessionStorage completamente
-    sessionStorage.removeItem('bets');
-    sessionStorage.removeItem('userEmail');
-    sessionStorage.removeItem('userName');
-    
-    // Notificar al usuario en consola
-    console.log('✅ Sesión cerrada correctamente');
-    
-    // Volver a mostrar pantalla de login
+async function logout() {
+    await logoutSupabase();
+
     const loginScreen = document.getElementById('loginScreen');
     const mainScreen = document.getElementById('mainScreen');
-    
     loginScreen.style.display = 'flex';
     mainScreen.style.display = 'none';
-    
-    // Limpiar formulario
+
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
         loginForm.reset();
         document.getElementById('loginEmail').focus();
     }
-    
-    // Mostrar mensaje de confirmación
+
     const message = document.getElementById('loginMessage');
     message.textContent = '👋 Sesión cerrada. Vuelve a iniciar sesión.';
     message.className = 'login-message success';
-    
-    setTimeout(() => {
-        message.textContent = '';
-    }, 3000);
+    setTimeout(() => { message.textContent = ''; }, 3000);
 }
 
 
@@ -219,56 +267,39 @@ function collectMarkets() {
     return markets;
 }
 
-function handleFormSubmit(event) {
+async function handleFormSubmit(event) {
     event.preventDefault();
-    console.log('🎯 handleFormSubmit - Iniciando guardado de apuesta');
-    
+
     const btnText = document.getElementById('btnText');
     const btn = document.getElementById('saveBetBtn');
-    
-    console.log('🔘 Botón encontrado:', !!btn, 'btnText encontrado:', !!btnText);
-    
     btn.disabled = true;
     btnText.textContent = 'Guardando...';
-    
+
     const markets = collectMarkets();
-    console.log('📍 Mercados recolectados:', markets.length, markets);
-    
     if (markets.length === 0) {
-        console.error('❌ No hay mercados');
         showMessage('Debes especificar al menos un mercado', 'error');
         btn.disabled = false;
         btnText.textContent = 'Guardar Apuesta';
         return;
     }
-    
+
     const bet = {
-        id: Date.now().toString(),
         type: betType,
         house: document.getElementById('house').value,
         sport: document.getElementById('sport').value,
         event: document.getElementById('event').value,
-        market: markets.length === 1 ? markets[0] : markets,
         markets: markets,
+        market: markets.length === 1 ? markets[0] : markets,
         odds: parseFloat(document.getElementById('odds').value),
         stake: parseFloat(document.getElementById('stake').value),
         status: document.getElementById('status').value,
         date: document.getElementById('date').value,
-        createdAt: new Date().toISOString()
     };
-    
-    console.log('💾 Apuesta creada:', bet);
-    
-    // Guardar en sesión (se borra al cerrar la extensión)
-    const bets = JSON.parse(sessionStorage.getItem('bets') || '[]');
-    bets.push(bet);
-    sessionStorage.setItem('bets', JSON.stringify(bets));
-    console.log('✅ Apuesta guardada en sessionStorage. Total:', bets.length);
-    
-    // Guardar en Firestore
-    saveBetToFirestore(bet, bets, () => {
-        console.log('✅ Callback de saveBetToFirestore ejecutado');
-        
+
+    updateSyncStatus('syncing');
+    const ok = await saveBetToSupabase(bet);
+
+    if (ok) {
         // Reset form
         document.getElementById('betForm').reset();
         initializeDateTodayinForm();
@@ -277,204 +308,120 @@ function handleFormSubmit(event) {
         betType = 'simple';
         document.getElementById('additionalMarketsContainer').innerHTML = '';
         toggleAddMarketBtn();
-        
-        btn.disabled = false;
-        btnText.textContent = 'Guardar Apuesta';
-        
-        console.log('🔄 Llamando a loadRecentBets desde callback');
         showMessage('✅ Apuesta guardada y sincronizada', 'success');
-        loadRecentBets();
-    });
-}
-
-// ===== FIRESTORE FUNCTIONS =====
-
-async function saveBetToFirestore(bet, allBets, callback) {
-    try {
-        updateSyncStatus('syncing');
-        console.log('📤 Guardando en Firestore...');
-        console.log('📊 Total de apuestas a guardar:', allBets.length);
-        
-        // Intentar obtener el UID de la app web
-        let userId = localStorage.getItem('firestore_user_uid');
-        
-        if (userId) {
-            console.log('🔑 UID de usuario encontrado:', userId);
-            // Guardar en el documento del usuario autenticado
-            const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_CONFIG.projectId}/databases/(default)/documents/users/${userId}?key=${FIREBASE_CONFIG.apiKey}`;
-            
-            const payload = {
-                fields: {
-                    extensionBets: {
-                        arrayValue: {
-                            values: allBets.map(b => ({
-                                mapValue: {
-                                    fields: {
-                                        id: { stringValue: String(b.id) },
-                                        type: { stringValue: b.type || 'simple' },
-                                        house: { stringValue: b.house || '' },
-                                        sport: { stringValue: b.sport || '' },
-                                        event: { stringValue: b.event || '' },
-                                        odds: { doubleValue: parseFloat(b.odds) || 0 },
-                                        stake: { doubleValue: parseFloat(b.stake) || 0 },
-                                        status: { stringValue: b.status || 'pending' },
-                                        date: { stringValue: b.date || '' },
-                                        createdAt: { stringValue: b.createdAt || '' },
-                                        markets: {
-                                            arrayValue: {
-                                                values: (Array.isArray(b.markets) ? b.markets : [b.market || '']).map(m => ({ stringValue: m }))
-                                            }
-                                        }
-                                    }
-                                }
-                            }))
-                        }
-                    },
-                    lastSyncExtension: { stringValue: new Date().toISOString() }
-                }
-            };
-            
-            console.log('🌐 URL:', url);
-            
-            const response = await fetch(url, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            
-            console.log('📡 Respuesta de Firestore:', response.status, response.statusText);
-            
-            if (response.ok) {
-                console.log('✅ Guardado en Firestore exitosamente (documento del usuario)');
-                updateSyncStatus('ready');
-                if (callback) {
-                    console.log('🔔 Ejecutando callback después de guardar en Firestore');
-                    callback();
-                }
-            } else {
-                const error = await response.text();
-                console.error('❌ Error en Firestore:', response.status, error);
-                updateSyncStatus('offline');
-                if (callback) {
-                    console.log('🔔 Ejecutando callback (aunque hubo error)');
-                    callback();
-                }
-            }
-        } else {
-            console.log('⚠️ No se encontró UID de usuario. Guardando en extension_users como fallback');
-            // Fallback a extension_users si no hay autenticación
-            const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_CONFIG.projectId}/databases/(default)/documents/extension_users/${EXTENSION_USER_ID}?key=${FIREBASE_CONFIG.apiKey}`;
-            
-            const payload = {
-                fields: {
-                    bets: {
-                        arrayValue: {
-                            values: allBets.map(b => ({
-                                mapValue: {
-                                    fields: {
-                                        id: { stringValue: String(b.id) },
-                                        type: { stringValue: b.type || 'simple' },
-                                        house: { stringValue: b.house || '' },
-                                        sport: { stringValue: b.sport || '' },
-                                        event: { stringValue: b.event || '' },
-                                        odds: { doubleValue: parseFloat(b.odds) || 0 },
-                                        stake: { doubleValue: parseFloat(b.stake) || 0 },
-                                        status: { stringValue: b.status || 'pending' },
-                                        date: { stringValue: b.date || '' },
-                                        createdAt: { stringValue: b.createdAt || '' },
-                                        markets: {
-                                            arrayValue: {
-                                                values: (Array.isArray(b.markets) ? b.markets : [b.market || '']).map(m => ({ stringValue: m }))
-                                            }
-                                        }
-                                    }
-                                }
-                            }))
-                        }
-                    },
-                    lastSync: { stringValue: new Date().toISOString() }
-                }
-            };
-            
-            const response = await fetch(url, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            
-            if (response.ok) {
-                console.log('✅ Guardado en extension_users'),
-                updateSyncStatus('ready');
-                if (callback) callback();
-            } else {
-                updateSyncStatus('offline');
-                if (callback) callback();
-            }
-        }
-    } catch (error) {
-        console.error('❌ Error guardando en Firestore:', error);
+        updateSyncStatus('ready');
+        await loadRecentBets();
+    } else {
+        showMessage('❌ Error al guardar. Comprueba tu conexión.', 'error');
         updateSyncStatus('offline');
-        if (callback) {
-            console.log('🔔 Ejecutando callback (error de red)');
-            callback();
-        }
+    }
+
+    btn.disabled = false;
+    btnText.textContent = 'Guardar Apuesta';
+}
+
+// ===== SUPABASE DATA FUNCTIONS =====
+
+async function saveBetToSupabase(bet) {
+    try {
+        const token = await getValidToken();
+        if (!token) { updateSyncStatus('offline'); return false; }
+
+        const session = await getSession();
+        const markets = Array.isArray(bet.markets) ? bet.markets : (bet.market ? [bet.market] : []);
+
+        const betData = {
+            user_id: session.user_id,
+            bet_type: bet.type || 'simple',
+            house: bet.house || '',
+            sport: bet.sport || '',
+            event: bet.event || '',
+            market: markets.join(' | ') || '',
+            odds: parseFloat(bet.odds) || 0,
+            stake: parseFloat(bet.stake) || 0,
+            stake_type: 'currency',
+            profit: 0,
+            status: bet.status || 'pending',
+            notes: '',
+            bet_date: bet.date || new Date().toISOString().split('T')[0]
+        };
+
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/bets`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+                'apikey': SUPABASE_ANON_KEY,
+                'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify(betData)
+        });
+
+        return response.ok || response.status === 201;
+    } catch (err) {
+        console.error('Error guardando apuesta:', err);
+        return false;
     }
 }
 
-function loadRecentBets() {
-    console.log('📋 Cargando apuestas recientes...');
-    const betsJson = sessionStorage.getItem('bets');
-    console.log('📦 JSON de bets en sesión:', betsJson);
-    
-    const bets = JSON.parse(betsJson || '[]');
-    console.log('✅ Bets parseadas:', bets.length, 'apuestas totales');
-    
-    const recentBets = bets.slice(-5).reverse();
-    console.log('📊 Mostrando últimas 5:', recentBets.length);
-    
+async function loadRecentBets() {
     const betsList = document.getElementById('betsList');
-    console.log('🎯 betsList elemento encontrado:', !!betsList);
-    
-    if (!betsList) {
-        console.error('❌ Elemento betsList no encontrado');
-        return;
-    }
-    
-    betsList.innerHTML = '';
-    
-    if (recentBets.length === 0) {
-        console.log('ℹ️ No hay apuestas para mostrar');
-        betsList.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 1rem;">Aún no hay apuestas</p>';
-        return;
-    }
-        
-        console.log('📊 Renderizando', recentBets.length, 'apuestas recientes');
-        recentBets.forEach((bet, index) => {
-            console.log(`  [${index + 1}]`, bet.event, bet.odds, '€' + bet.stake);
+    if (!betsList) return;
+
+    betsList.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 1rem;">Cargando...</p>';
+
+    try {
+        const token = await getValidToken();
+        if (!token) {
+            betsList.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 1rem;">Sesión expirada</p>';
+            return;
+        }
+
+        const session = await getSession();
+        const response = await fetch(
+            `${SUPABASE_URL}/rest/v1/bets?user_id=eq.${session.user_id}&order=bet_date.desc,created_at.desc&limit=5`,
+            {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'apikey': SUPABASE_ANON_KEY
+                }
+            }
+        );
+
+        if (!response.ok) {
+            betsList.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 1rem;">Error al cargar apuestas</p>';
+            return;
+        }
+
+        const bets = await response.json();
+        betsList.innerHTML = '';
+
+        if (bets.length === 0) {
+            betsList.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 1rem;">Aún no hay apuestas</p>';
+            return;
+        }
+
+        bets.forEach(bet => {
             const betEl = document.createElement('div');
             betEl.className = 'bet-item';
-            
+
             const statusClass = bet.status === 'win' ? 'win' : (bet.status === 'loss' ? 'loss' : 'pending');
             const statusText = bet.status === 'win' ? 'Ganada' : (bet.status === 'loss' ? 'Perdida' : 'Pendiente');
-            
-            let marketInfo = '';
-            if (Array.isArray(bet.markets) && bet.markets.length > 1) {
-                marketInfo = `<span class="badge-combined">+${bet.markets.length - 1}</span> ${bet.markets[0]}`;
-            } else {
-                marketInfo = bet.market || bet.markets?.[0] || 'N/A';
-            }
-            
+
             betEl.innerHTML = `
                 <div class="bet-item-info">
                     <div class="bet-item-event">${bet.event}</div>
                     <div class="bet-item-details">${bet.house} • ${bet.odds} • €${bet.stake}</div>
-                    <div class="bet-item-market" style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">${marketInfo}</div>
+                    <div class="bet-item-market" style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">${bet.market || ''}</div>
                 </div>
                 <div class="bet-item-status ${statusClass}">${statusText}</div>
             `;
-            
             betsList.appendChild(betEl);
         });
+    } catch (err) {
+        console.error('Error cargando apuestas:', err);
+        betsList.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 1rem;">Error de conexión</p>';
+    }
 }
 
 function updateSyncStatus(status) {
