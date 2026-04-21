@@ -2799,8 +2799,9 @@
                             <button class="time-filter" data-period="365">1a</button>
                         </div>
                     </div>
-                    <div class="chart-wrapper">
+                    <div class="chart-wrapper" style="position:relative;">
                         <canvas id="dashChart" class="chart-canvas"></canvas>
+                        <div id="chartTooltip" style="display:none;position:absolute;background:var(--bg-card);color:var(--text);padding:5px 10px;border-radius:8px;font-size:0.8rem;pointer-events:none;border:1px solid var(--border);white-space:nowrap;z-index:10;"></div>
                     </div>
                 </div>
 
@@ -2909,6 +2910,51 @@
                         <span class="settings-icon">💰</span>
                         <div class="settings-label">Cambiar Banca Inicial</div>
                         <span class="settings-value" id="currentBankroll">€0</span>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <div style="padding: 1rem;">
+                        <div style="font-weight:600; color:var(--text); margin-bottom:0.75rem;">⚙️ Valores por defecto</div>
+                        <div style="display:grid; gap:0.5rem;">
+                            <select id="defaultSportSelect" style="background:var(--bg-secondary);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:0.5rem 0.75rem;">
+                                <option value="">Sin deporte por defecto</option>
+                                <option value="⚽ Fútbol">⚽ Fútbol</option>
+                                <option value="🏀 Baloncesto">🏀 Baloncesto</option>
+                                <option value="🎾 Tenis">🎾 Tenis</option>
+                                <option value="⚾ Béisbol">⚾ Béisbol</option>
+                                <option value="🏈 Fútbol Americano">🏈 Fútbol Americano</option>
+                                <option value="🏒 Hockey sobre Hielo">🏒 Hockey sobre Hielo</option>
+                                <option value="⛳ Golf">⛳ Golf</option>
+                                <option value="🥊 Boxeo">🥊 Boxeo</option>
+                                <option value="🏎️ Fórmula 1">🏎️ Fórmula 1</option>
+                                <option value="🏉 Rugby">🏉 Rugby</option>
+                            </select>
+                            <select id="defaultHouseSelect" style="background:var(--bg-secondary);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:0.5rem 0.75rem;">
+                                <option value="">Sin casa por defecto</option>
+                                <option value="Bet365">Bet365</option>
+                                <option value="Sportium">Sportium</option>
+                                <option value="Paf">Paf</option>
+                                <option value="Betway">Betway</option>
+                                <option value="William Hill">William Hill</option>
+                                <option value="888sport">888sport</option>
+                                <option value="Bwin">Bwin</option>
+                                <option value="Luckia">Luckia</option>
+                                <option value="Codere">Codere</option>
+                                <option value="Betfair">Betfair</option>
+                                <option value="Marca Apuestas">Marca Apuestas</option>
+                                <option value="Betsson">Betsson</option>
+                                <option value="Leovegas">Leovegas</option>
+                                <option value="Marathonbet">Marathonbet</option>
+                                <option value="Casumo">Casumo</option>
+                                <option value="Versus">Versus</option>
+                                <option value="Kirolbet">Kirolbet</option>
+                                <option value="Interwetten">Interwetten</option>
+                                <option value="Retabet">Retabet</option>
+                                <option value="Paston">Paston</option>
+                                <option value="YaassCasino">YaassCasino</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
@@ -3275,7 +3321,7 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label>Cuota</label>
-                            <input type="number" id="betOdds" step="0.01" required placeholder="1.85">
+                            <input type="number" id="betOdds" step="any" required placeholder="1.85" onwheel="this.blur()">
                         </div>
                         <div class="form-group">
                             <label>Estado</label>
@@ -3754,6 +3800,8 @@
                     losses: 0,
                     pending: 0,
                     totalStaked: 0,
+                    resolvedStake: 0,
+                    pendingStake: 0,
                     profit: 0,
                     history: []
                 };
@@ -3774,17 +3822,20 @@
                         stats.profit += winAmount;
                         runningBankroll += winAmount;
                         stats.totalStaked += stake;
+                        stats.resolvedStake += stake;
                         stats.wins++;
                     } else if (bet.status === 'loss') {
                         stats.profit -= stake;
                         runningBankroll -= stake;
                         stats.totalStaked += stake;
+                        stats.resolvedStake += stake;
                         stats.losses++;
                     } else if (bet.status === 'half_win') {
                         const halfWinAmount = (stake * odds - stake) / 2;
                         stats.profit += halfWinAmount;
                         runningBankroll += halfWinAmount;
                         stats.totalStaked += stake;
+                        stats.resolvedStake += stake;
                         stats.wins++;
                     } else if (bet.status === 'void') {
                         // Stake devuelto, sin beneficio ni pérdida
@@ -3792,6 +3843,7 @@
                     } else {
                         stats.pending++;
                         stats.totalStaked += stake;
+                        stats.pendingStake += stake;
                     }
 
                     if (bet.status !== 'pending') {
@@ -3799,16 +3851,23 @@
                         const rawDate = String(bet.date || bet.betDate || '').substring(0, 10);
                         const [y, mo, d] = rawDate.split('-');
                         const dateLabel = rawDate ? `${d}/${mo}` : '?';
-                        stats.history.push({ date: dateLabel, bankroll: runningBankroll });
+                        // Aggregate by day: update last entry if same day, else push new
+                        const last = stats.history[stats.history.length - 1];
+                        if (last && last.date === dateLabel) {
+                            last.bankroll = runningBankroll;
+                        } else {
+                            stats.history.push({ date: dateLabel, bankroll: runningBankroll });
+                        }
                     }
                 });
 
                 stats.currentBankroll = this.initialBankroll + stats.profit;
+                stats.availableBankroll = stats.currentBankroll - stats.pendingStake;
                 stats.winRate = (stats.wins + stats.losses) > 0 
                     ? ((stats.wins / (stats.wins + stats.losses)) * 100).toFixed(1)
                     : 0;
-                stats.roi = this.initialBankroll > 0 
-                    ? ((stats.profit / this.initialBankroll) * 100).toFixed(1)
+                stats.roi = stats.resolvedStake > 0 
+                    ? ((stats.profit / stats.resolvedStake) * 100).toFixed(1)
                     : 0;
                 stats.progression = this.initialBankroll > 0
                     ? (((stats.currentBankroll - this.initialBankroll) / this.initialBankroll) * 100).toFixed(1)
@@ -3959,6 +4018,27 @@
                     ctx.fill();
                 }
 
+                // Tooltip on hover
+                const tooltip = document.getElementById('chartTooltip');
+                if (tooltip) {
+                    canvas.onmousemove = (e) => {
+                        const rect = canvas.getBoundingClientRect();
+                        const mouseX = e.clientX - rect.left;
+                        const n = stats.history.length;
+                        if (n <= 1) return;
+                        const idx = Math.round((mouseX - padding) / (width / (n - 1)));
+                        const clamped = Math.max(0, Math.min(n - 1, idx));
+                        const point = stats.history[clamped];
+                        const p = getPoint(clamped);
+                        const tipX = p.x + 12 > canvasWidth - 130 ? p.x - 130 : p.x + 12;
+                        tooltip.style.display = 'block';
+                        tooltip.style.left = `${tipX}px`;
+                        tooltip.style.top = `${Math.max(4, p.y - 32)}px`;
+                        tooltip.innerHTML = `<strong>${point.date}</strong> &nbsp;€${point.bankroll.toFixed(2)}`;
+                    };
+                    canvas.onmouseleave = () => { tooltip.style.display = 'none'; };
+                }
+
                 // Labels
                 ctx.fillStyle = '#cbd5e1';
                 ctx.font = '11px sans-serif';
@@ -3984,12 +4064,12 @@
                 const stats = this.calculateStats();
                 
                 // Dashboard
-                document.getElementById('dashBankroll').textContent = `€${stats.currentBankroll.toFixed(2)}`;
+                document.getElementById('dashBankroll').textContent = `€${stats.availableBankroll.toFixed(2)}`;
                 document.getElementById('dashBankroll').className = 'stat-value ' + 
-                    (stats.currentBankroll >= this.initialBankroll ? 'positive' : 'negative');
+                    (stats.profit >= 0 ? 'positive' : 'negative');
                 
                 const progress = this.initialBankroll > 0 
-                    ? Math.min((stats.currentBankroll / (this.initialBankroll * 2)) * 100, 100)
+                    ? Math.min((stats.availableBankroll / (this.initialBankroll * 2)) * 100, 100)
                     : 0;
                 document.getElementById('dashProgress').style.width = progress + '%';
                 
@@ -4373,6 +4453,7 @@
                     let displayValue = '-';
                     if (trades > 0) {
                         displayValue = `${profit >= 0 ? '+' : ''}${profit.toFixed(2)}€`;
+                        if (pending > 0) displayValue += `<br><span style="font-size:0.6rem;opacity:0.75">${pending}⏳</span>`;
                     } else if (pending > 0) {
                         displayValue = `${pending} pend.`;
                     }
@@ -4555,7 +4636,20 @@
 
                 document.getElementById('modalTitle').textContent = 'Editar Apuesta';
                 document.getElementById('editBetId').value = bet.id;
-                document.getElementById('betHouse').value = bet.house || '';
+                // Restaurar casa - manejar casas personalizadas ("Otro")
+                const houseSelectEl = document.getElementById('betHouse');
+                const houseCustomEl = document.getElementById('betHouseCustom');
+                houseSelectEl.value = bet.house || '';
+                if (bet.house && houseSelectEl.value !== bet.house) {
+                    houseSelectEl.value = '__other__';
+                    houseCustomEl.value = bet.house;
+                    houseCustomEl.style.display = 'block';
+                    houseCustomEl.required = true;
+                } else {
+                    houseCustomEl.style.display = 'none';
+                    houseCustomEl.value = '';
+                    houseCustomEl.required = false;
+                }
                 document.getElementById('betSport').value = bet.sport || '';
                 document.getElementById('betEvent').value = bet.event || '';
                 document.getElementById('betOdds').value = bet.odds || '';
@@ -4876,6 +4970,20 @@
                     this.renderBetsPage();
                 });
 
+                // Default sport/house settings
+                const defaultSportSel = document.getElementById('defaultSportSelect');
+                const defaultHouseSel = document.getElementById('defaultHouseSelect');
+                if (defaultSportSel) {
+                    const saved = localStorage.getItem('defaultSport');
+                    if (saved) defaultSportSel.value = saved;
+                    defaultSportSel.addEventListener('change', (e) => localStorage.setItem('defaultSport', e.target.value));
+                }
+                if (defaultHouseSel) {
+                    const saved = localStorage.getItem('defaultHouse');
+                    if (saved) defaultHouseSel.value = saved;
+                    defaultHouseSel.addEventListener('change', (e) => localStorage.setItem('defaultHouse', e.target.value));
+                }
+
                 // Event delegation for edit/delete buttons
                 document.addEventListener('click', (e) => {
                     const editBtn = e.target.closest('.edit-bet-btn');
@@ -4931,6 +5039,8 @@
                 
                 // Establecer fecha de hoy por defecto
                 tracker.setDefaultBetDate();
+                // Aplicar valores por defecto
+                applyBetDefaults();
                 
                 // Limpiar mercados adicionales y ocultar botón
                 document.getElementById('additionalMarketsContainer').innerHTML = '';
@@ -4942,6 +5052,8 @@
                 
                 // Establecer fecha de hoy por defecto
                 tracker.setDefaultBetDate();
+                // Aplicar valores por defecto
+                applyBetDefaults();
                 
                 // Limpiar mercados adicionales y ocultar botón
                 document.getElementById('additionalMarketsContainer').innerHTML = '';
@@ -4961,6 +5073,28 @@
             // Limpiar datos OCR
             ocrCurrentImage = null;
             ocrCurrentData = null;
+        }
+
+        function applyBetDefaults() {
+            const defSport = localStorage.getItem('defaultSport');
+            const defHouse = localStorage.getItem('defaultHouse');
+            if (defSport) {
+                const el = document.getElementById('betSport');
+                if (el) el.value = defSport;
+            }
+            if (defHouse) {
+                const hs = document.getElementById('betHouse');
+                const hc = document.getElementById('betHouseCustom');
+                if (hs) {
+                    hs.value = defHouse;
+                    if (hs.value !== defHouse && defHouse) {
+                        hs.value = '__other__';
+                        hc.value = defHouse;
+                        hc.style.display = 'block';
+                        hc.required = true;
+                    }
+                }
+            }
         }
 
         // ===== PWA INSTALL FUNCTIONS =====
