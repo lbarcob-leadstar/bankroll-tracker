@@ -3211,7 +3211,10 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Casa de Apuestas</label>
+                        <label style="display:flex;align-items:center;justify-content:space-between;">
+                            Casa de Apuestas
+                            <button type="button" id="favHouseBtn" title="Marcar como favorita" onclick="toggleFavHouse()" style="background:none;border:none;cursor:pointer;font-size:1.1rem;padding:0;line-height:1;">☆</button>
+                        </label>
                         <select id="betHouse" required>
                             <option value="">Seleccionar</option>
                             <option value="Bet365">Bet365</option>
@@ -3242,6 +3245,7 @@
                             <option value="__other__">Otro...</option>
                         </select>
                         <input type="text" id="betHouseCustom" placeholder="Nombre de la casa" style="display: none; margin-top: 0.5rem; width: 100%; padding: 0.75rem; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 0.95rem;">
+                        <div id="favHouseHint" style="display:none;font-size:0.75rem;color:var(--text-secondary);margin-top:0.3rem;"></div>
                     </div>
 
                     <div class="form-group">
@@ -4925,7 +4929,9 @@
                         houseCustom.required = false;
                         houseCustom.value = '';
                     }
+                    updateFavHouseStar();
                 });
+                houseCustom?.addEventListener('input', () => updateFavHouseStar());
 
                 // Stake type toggle
                 document.querySelectorAll('.stake-option').forEach(opt => {
@@ -5095,6 +5101,47 @@
                     }
                 }
             }
+            updateFavHouseStar();
+        }
+
+        function updateFavHouseStar() {
+            const btn = document.getElementById('favHouseBtn');
+            const hint = document.getElementById('favHouseHint');
+            if (!btn) return;
+            const defHouse = localStorage.getItem('defaultHouse') || '';
+            const hs = document.getElementById('betHouse');
+            const hc = document.getElementById('betHouseCustom');
+            const current = hs && hs.value === '__other__' ? (hc ? hc.value.trim() : '') : (hs ? hs.value : '');
+            const isFav = current && current === defHouse;
+            btn.textContent = isFav ? '⭐' : '☆';
+            btn.title = isFav ? 'Casa favorita (click para quitar)' : 'Marcar como favorita';
+            if (hint) {
+                if (defHouse && !isFav && current) {
+                    hint.style.display = 'block';
+                    hint.textContent = `Favorita actual: ${defHouse}`;
+                } else {
+                    hint.style.display = 'none';
+                }
+            }
+        }
+
+        function toggleFavHouse() {
+            const hs = document.getElementById('betHouse');
+            const hc = document.getElementById('betHouseCustom');
+            const current = hs && hs.value === '__other__' ? (hc ? hc.value.trim() : '') : (hs ? hs.value : '');
+            if (!current) return;
+            const defHouse = localStorage.getItem('defaultHouse') || '';
+            if (current === defHouse) {
+                // Quitar favorita
+                localStorage.removeItem('defaultHouse');
+            } else {
+                // Guardar nueva favorita
+                localStorage.setItem('defaultHouse', current);
+                // Sincronizar el select de ajustes si existe
+                const sel = document.getElementById('defaultHouseSelect');
+                if (sel) sel.value = current;
+            }
+            updateFavHouseStar();
         }
 
         // ===== PWA INSTALL FUNCTIONS =====
