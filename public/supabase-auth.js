@@ -27,8 +27,6 @@ class SupabaseAuthManager {
             const { data, error } = await this.supabase.auth.getSession();
             if (data?.session) {
                 this.user = data.session.user;
-                localStorage.setItem('firestore_user_uid', this.user.id);
-                localStorage.setItem('firestore_user_email', this.user.email);
                 localStorage.setItem('currentUserId', this.user.id);
             }
             
@@ -68,8 +66,6 @@ class SupabaseAuthManager {
                 });
                 
                 // Guardar datos en localStorage para compatibilidad
-                localStorage.setItem('firestore_user_uid', this.user.id);
-                localStorage.setItem('firestore_user_email', email);
                 localStorage.setItem('currentUserId', this.user.id);
                 localStorage.setItem('isFirstRegistration', 'true');
             }
@@ -99,8 +95,6 @@ class SupabaseAuthManager {
             this.user = data.user;
             
             // Guardar datos en localStorage para compatibilidad
-            localStorage.setItem('firestore_user_uid', this.user.id);
-            localStorage.setItem('firestore_user_email', email);
             localStorage.setItem('currentUserId', this.user.id);
 
             return { success: true, user: this.user };
@@ -147,8 +141,6 @@ class SupabaseAuthManager {
             this.user = null;
             
             // Limpiar localStorage
-            localStorage.removeItem('firestore_user_uid');
-            localStorage.removeItem('firestore_user_email');
             localStorage.removeItem('currentUserId');
             localStorage.removeItem('bets');
             localStorage.removeItem('initialBankroll');
@@ -222,8 +214,6 @@ class SupabaseAuthManager {
             this.supabase.auth.onAuthStateChange((event, session) => {
                 if (session) {
                     this.user = session.user;
-                    localStorage.setItem('firestore_user_uid', session.user.id);
-                    localStorage.setItem('firestore_user_email', session.user.email);
                     localStorage.setItem('currentUserId', session.user.id);
                     
                     // Mostrar app y ocultar auth pages
@@ -236,8 +226,6 @@ class SupabaseAuthManager {
                     }));
                 } else {
                     this.user = null;
-                    localStorage.removeItem('firestore_user_uid');
-                    localStorage.removeItem('firestore_user_email');
                     localStorage.removeItem('currentUserId');
                     
                     // Ocultar app y mostrar auth pages
