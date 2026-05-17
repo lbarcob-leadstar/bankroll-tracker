@@ -99,7 +99,7 @@ class SupabaseDataService {
     /**
      * Actualizar apuesta
      */
-    async updateBet(betId, betData) {
+    async updateBet(userId, betId, betData) {
         try {
             await this.init();
             
@@ -107,6 +107,7 @@ class SupabaseDataService {
                 .from('bets')
                 .update(betData)
                 .eq('id', betId)
+                .eq('user_id', userId)
                 .select();
 
             if (error) throw error;
@@ -121,14 +122,15 @@ class SupabaseDataService {
     /**
      * Eliminar apuesta
      */
-    async deleteBet(betId) {
+    async deleteBet(userId, betId) {
         try {
             await this.init();
             
             const { error } = await this.supabase
                 .from('bets')
                 .delete()
-                .eq('id', betId);
+                .eq('id', betId)
+                .eq('user_id', userId);
 
             if (error) throw error;
             
