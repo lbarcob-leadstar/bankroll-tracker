@@ -4874,6 +4874,12 @@
                     const houseSelect = document.getElementById('betHouse');
                     const houseCustom = document.getElementById('betHouseCustom');
                     const houseValue = houseSelect.value === '__other__' ? houseCustom.value.trim() : houseSelect.value;
+
+                    // Convertir stake % a € si corresponde
+                    const rawStake = parseFloat(document.getElementById('betStake').value) || 0;
+                    const resolvedStake = this.stakeType === 'percent'
+                        ? (rawStake / 100) * this.initialBankroll
+                        : rawStake;
                     
                     const bet = {
                         house: houseValue,
@@ -4882,7 +4888,8 @@
                         market: market,
                         odds: document.getElementById('betOdds').value,
                         status: document.getElementById('betStatus').value,
-                        stake: document.getElementById('betStake').value,
+                        stake: resolvedStake,
+                        stakeType: this.stakeType,
                         notes: document.getElementById('betNotes').value,
                         type: this.betType,
                         betDate: document.getElementById('betDate').value
